@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { usePermission } from '@/hooks/usePermission';
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
+import Link from 'next/link';
 
 interface Role {
   id: number;
@@ -122,11 +123,15 @@ export default function RolesPage() {
       <div className="p-8 space-y-6">
         {/* Tabs */}
         <div className="flex gap-4 border-b border-[#E5E7EB]">
-          <div className="px-4 py-2 font-medium text-[#6B7280]">Employés</div>
+          <Link href="/admin/rh" className="px-4 py-2 font-medium text-[#6B7280] hover:text-[#374151] transition-colors cursor-pointer">
+            Employés
+          </Link>
           <div className="px-4 py-2 font-medium text-[#E8690A] border-b-2 border-[#E8690A]">
             Rôles
           </div>
-          <div className="px-4 py-2 font-medium text-[#6B7280]">Présences</div>
+          <Link href="/admin/rh/attendance" className="px-4 py-2 font-medium text-[#6B7280] hover:text-[#374151] transition-colors cursor-pointer">
+            Présences
+          </Link>
         </div>
 
         {/* Add Button */}

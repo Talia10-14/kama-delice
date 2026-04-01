@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Download, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
+import Link from 'next/link';
 
 interface AttendanceRecord {
   id: string;
@@ -153,6 +154,25 @@ export default function AttendancePage() {
       <Header title="Registre des Présences" />
 
       <div className="p-8 space-y-6">
+        {/* Tabs */}
+        <div className="flex gap-4 border-b border-[#E5E7EB]">
+          <Link 
+            href="/admin/rh" 
+            className="px-4 py-2 font-medium text-[#6B7280] hover:text-[#374151] transition-colors cursor-pointer"
+          >
+            Employés
+          </Link>
+          <Link 
+            href="/admin/rh/roles" 
+            className="px-4 py-2 font-medium text-[#6B7280] hover:text-[#374151] transition-colors cursor-pointer"
+          >
+            Rôles
+          </Link>
+          <div className="px-4 py-2 font-medium text-[#E8690A] border-b-2 border-[#E8690A]">
+            Présences
+          </div>
+        </div>
+
         {/* Filters and Export */}
         <div className="bg-white rounded-lg shadow p-4 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
