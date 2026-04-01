@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { sendWelcomeEmail } from '@/lib/email';
 import * as bcrypt from 'bcryptjs';
 
 
@@ -68,6 +69,19 @@ export async function POST(request: Request) {
           employeeId: employee.id,
         },
       });
+
+      // Send welcome email with credentials
+      try {
+        await sendWelcomeEmail({
+          email: body.email,
+          nom: body.nom,
+          prenom: body.prenom,
+          password: userPassword,
+        });
+      } catch (emailError) {
+        console.error('Email sending failed, but employee was created:', emailError);
+        // Don't fail the employee creation if email fails
+      }
     }
 
     return Response.json({
