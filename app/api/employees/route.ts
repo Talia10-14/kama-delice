@@ -56,8 +56,9 @@ export async function POST(request: Request) {
     });
 
     // Create user if email provided
+    let userPassword = null;
     if (body.email) {
-      const userPassword = Math.random().toString(36).slice(-8);
+      userPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(userPassword, 10);
 
       await prisma.user.create({
@@ -69,7 +70,10 @@ export async function POST(request: Request) {
       });
     }
 
-    return Response.json(employee);
+    return Response.json({
+      ...employee,
+      userPassword: userPassword, // Return the plain password only once
+    });
   } catch (error) {
     console.error('Error creating employee:', error);
     return Response.json(
