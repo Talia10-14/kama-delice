@@ -6,7 +6,6 @@ interface FormInputEmailProps extends Omit<InputHTMLAttributes<HTMLInputElement>
   error?: string;
   helpText?: string;
   required?: boolean;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export function FormInputEmail({
@@ -16,8 +15,6 @@ export function FormInputEmail({
   required,
   className,
   id,
-  value,
-  onChange,
   ...props
 }: FormInputEmailProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
@@ -29,8 +26,15 @@ export function FormInputEmail({
     return emailRegex.test(email);
   };
 
-  const displayValue = typeof value === 'string' ? value : '';
+  const displayValue = typeof props.value === 'string' ? props.value : '';
   const isInvalid = displayValue && !validateEmail(displayValue);
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setTouched(true);
+    if (props.onBlur) {
+      props.onBlur(e as any);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -46,13 +50,11 @@ export function FormInputEmail({
           id={inputId}
           type="email"
           placeholder="utilisateur@exemple.com"
-          value={displayValue}
-          onChange={onChange}
-          onBlur={() => setTouched(true)}
           className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 text-base text-gray-900 placeholder-gray-500 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition-all duration-200 shadow-sm hover:shadow-md ${
             error && touched ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
           } ${isInvalid && touched ? 'border-yellow-500' : ''} ${className || ''}`}
           {...props}
+          onBlur={handleBlur}
         />
       </div>
 
