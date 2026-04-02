@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 /**
  * GET /api/stats/ca-journalier?periode=30
@@ -9,6 +10,16 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting (normal tier - 30 req/min)
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`${ip}:/api/stats/ca-journalier`, 'normal');
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: 'Trop de requêtes. Veuillez réessayer plus tard.' },
+        { status: 429, headers: { 'Retry-After': (rateLimit.resetInSeconds || 60).toString() } }
+      );
+    }
+
     // Vérifier l'authentification
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {

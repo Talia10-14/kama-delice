@@ -1,11 +1,22 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { verifyCsrfMiddleware } from '@/lib/csrf';
+import { logSecurityEvent, SecurityAction, SecuritySeverity } from '@/lib/security-logger';
 
-
-
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // Rate limiting (public tier - 100 req/min)
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`${ip}:/api/menus`, 'public');
+    if (!rateLimit.success) {
+      return Response.json(
+        { error: 'Trop de requêtes. Veuillez réessayer plus tard.' },
+        { status: 429, headers: { 'Retry-After': (rateLimit.resetInSeconds || 60).toString() } }
+      );
+    }
+
     const menus = await prisma.menu.findMany({
       orderBy: { category: 'asc' },
     });
@@ -21,6 +32,29 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // CSRF validation first
+    const csrfValid = await verifyCsrfMiddleware(request);
+    if (!csrfValid) {
+      const ip = getClientIp(request);
+      await logSecurityEvent({
+        action: SecurityAction.CSRF_VIOLATION,
+        ipAddress: ip,
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: SecuritySeverity.WARNING,
+      });
+      return Response.json({ error: 'CSRF token invalid or missing' }, { status: 403 });
+    }
+
+    // Rate limiting (normal tier - 30 req/min)
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`${ip}:/api/menus`, 'normal');
+    if (!rateLimit.success) {
+      return Response.json(
+        { error: 'Trop de requêtes. Veuillez réessayer plus tard.' },
+        { status: 429, headers: { 'Retry-After': (rateLimit.resetInSeconds || 60).toString() } }
+      );
+    }
+
     const session = await getServerSession(authOptions);
 
     if (!session) {
@@ -43,6 +77,16 @@ export async function POST(request: Request) {
         photoUrl: body.photoUrl,
         active: true,
       },
+    });
+
+    // Audit log success
+    await logSecurityEvent({
+      userId: (session.user as any).id,
+      action: SecurityAction.DATA_EXPORTED,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      details: { menuId: menu.id, name: menu.name, category: menu.category },
+      severity: SecuritySeverity.INFO,
     });
 
     return Response.json(menu);
