@@ -53,7 +53,10 @@ export const employeeSchema = z.object({
       "La date de fin doit être dans le futur"
     ),
   statut: z.enum(["ACTIF", "INACTIF"]).optional(),
-  roleId: z.string().uuid("ID de rôle invalide").optional(),
+  roleId: z.string()
+    .transform((val) => parseInt(val, 10))
+    .refine((val) => !isNaN(val) && val > 0, "ID de rôle invalide")
+    .optional(),
 });
 
 export type EmployeeInput = z.infer<typeof employeeSchema>;

@@ -96,7 +96,7 @@ export async function POST(request: Request) {
         dateEntree: validation.data.dateEntree,
         dateFin: validation.data.dateFin || null,
         statut: 'ACTIF',
-        roleId: body.roleId ? parseInt(body.roleId) : 1,
+        roleId: validation.data.roleId || 1,
       },
       include: { role: true },
     });
@@ -144,6 +144,13 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('Error creating employee:', error);
+    
+    // More detailed error logging for debugging
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    
     return Response.json(
       { error: 'Failed to create employee' },
       { status: 500 }
