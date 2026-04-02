@@ -3,6 +3,8 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { sanitizeTelephone, sanitizeString } from '@/lib/sanitize';
+import { verifyCsrfMiddleware } from '@/lib/csrf';
+import { logSecurityEvent, SecurityAction, SecuritySeverity } from '@/lib/security-logger';
 import { notifyStatutCommande, notifyAnnulationConfirmee } from '@/lib/whatsapp-templates';
 import { sendEmail } from '@/lib/mailer';
 
@@ -13,6 +15,19 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // CSRF Token validation
+    const csrfValid = await verifyCsrfMiddleware(request);
+    if (!csrfValid) {
+      const ip = getClientIp(request);
+      await logSecurityEvent({
+        action: SecurityAction.CSRF_VIOLATION,
+        ipAddress: ip,
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: SecuritySeverity.WARNING,
+      });
+      return Response.json({ error: 'CSRF token invalid or missing' }, { status: 403 });
+    }
+
     // Rate limiting
     const ip = getClientIp(request);
     const rateLimit = await checkRateLimit(`${ip}:/api/commandes/[id]`, 'normal');
@@ -47,15 +62,27 @@ export async function PUT(
       },
     });
 
+    // Log security event - order modification
+    await logSecurityEvent({
+      userId: (session.user as any).id,
+      action: SecurityAction.DATA_EXPORTED,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      details: { orderId: id, statusBefore: oldOrder?.status, statusAfter: order.status },
+      severity: SecuritySeverity.INFO,
+    });
+
     // Envoyer une notification si le statut a changé
     if (body.status && oldOrder?.status !== body.status && body.clientPhone) {
       try {
         const safePhone = sanitizeTelephone(body.clientPhone);
-        await notifyStatutCommande(
-          safePhone,
-          order.orderNumber || order.id,
-          body.status
-        );
+        if (safePhone) {
+          await notifyStatutCommande(
+            safePhone,
+            order.orderNumber || order.id,
+            body.status
+          );
+        }
       } catch (error) {
         console.error('Erreur lors de l\'envoi de la notification:', error);
       }
@@ -75,6 +102,19 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // CSRF Token validation
+    const csrfValid = await verifyCsrfMiddleware(request);
+    if (!csrfValid) {
+      const ip = getClientIp(request);
+      await logSecurityEvent({
+        action: SecurityAction.CSRF_VIOLATION,
+        ipAddress: ip,
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: SecuritySeverity.CRITICAL,
+      });
+      return Response.json({ error: 'CSRF token invalid or missing' }, { status: 403 });
+    }
+
     // Rate limiting
     const ip = getClientIp(request);
     const rateLimit = await checkRateLimit(`${ip}:/api/commandes/[id]/delete`, 'normal');
@@ -104,11 +144,23 @@ export async function DELETE(
       where: { id },
     });
 
+    // Log security event - CRITICAL: order deletion
+    await logSecurityEvent({
+      userId: (session.user as any).id,
+      action: SecurityAction.DATA_EXPORTED,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      details: { orderId: id, orderNumber: order?.orderNumber, amount: order?.amount },
+      severity: SecuritySeverity.CRITICAL,
+    });
+
     // Envoyer une notification d'annulation au client si le numéro est fourni
     if (order && body.clientPhone) {
       try {
         const safePhone = sanitizeTelephone(body.clientPhone);
-        await notifyAnnulationConfirmee(safePhone, order.orderNumber || order.id);
+        if (safePhone) {
+          await notifyAnnulationConfirmee(safePhone, order.orderNumber || order.id);
+        }
       } catch (error) {
         console.error('Erreur lors de l\'envoi de la notification:', error);
       }

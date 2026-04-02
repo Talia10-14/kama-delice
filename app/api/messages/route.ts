@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { sanitizeString, sanitizeEmail, sanitizeTelephone } from '@/lib/sanitize';
 import { messageSchema } from '@/lib/validators';
+import { verifyCsrfMiddleware } from '@/lib/csrf';
+import { logSecurityEvent, SecurityAction, SecuritySeverity } from '@/lib/security-logger';
 import { sendEmail } from '@/lib/mailer';
 
 
@@ -36,6 +38,19 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // CSRF Token validation
+    const csrfValid = await verifyCsrfMiddleware(request);
+    if (!csrfValid) {
+      const ip = getClientIp(request);
+      await logSecurityEvent({
+        action: SecurityAction.CSRF_VIOLATION,
+        ipAddress: ip,
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: SecuritySeverity.WARNING,
+      });
+      return Response.json({ error: 'CSRF token invalid or missing' }, { status: 403 });
+    }
+
     // Rate limiting - normal tier for all users (public endpoint)
     const ip = getClientIp(request);
     const rateLimit = await checkRateLimit(`${ip}:/api/messages`, 'public');
@@ -60,7 +75,7 @@ export async function POST(request: Request) {
     // Sanitize inputs
     const sanitized = {
       senderName: sanitizeString(validation.data.senderName, 100),
-      senderEmail: sanitizeEmail(validation.data.senderEmail),
+      senderEmail: sanitizeEmail(validation.data.senderEmail) || validation.data.senderEmail,
       senderPhone: validation.data.senderPhone ? sanitizeTelephone(validation.data.senderPhone) : null,
       subject: sanitizeString(validation.data.subject, 200),
       content: sanitizeString(validation.data.content, 5000),
@@ -75,6 +90,15 @@ export async function POST(request: Request) {
         subject: sanitized.subject,
         content: sanitized.content,
       },
+    });
+
+    // Log security event - message received (non-authenticated)
+    await logSecurityEvent({
+      action: SecurityAction.DATA_EXPORTED,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      details: { messageId: message.id, from: sanitized.senderEmail },
+      severity: SecuritySeverity.INFO,
     });
 
     // Envoyer une notification email aux admins

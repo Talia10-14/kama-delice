@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { sanitizeString, sanitizeEmail, sanitizeTelephone } from '@/lib/sanitize';
 import { employeeSchema } from '@/lib/validators';
+import { verifyCsrfMiddleware } from '@/lib/csrf';
+import { logSecurityEvent, SecurityAction, SecuritySeverity } from '@/lib/security-logger';
 import { sendWelcomeEmail } from '@/lib/email';
 import * as bcrypt from 'bcryptjs';
 
@@ -32,6 +34,19 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // CSRF Token validation
+    const csrfValid = await verifyCsrfMiddleware(request);
+    if (!csrfValid) {
+      const ip = getClientIp(request);
+      await logSecurityEvent({
+        action: SecurityAction.CSRF_VIOLATION,
+        ipAddress: ip,
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: SecuritySeverity.WARNING,
+      });
+      return Response.json({ error: 'CSRF token invalid or missing' }, { status: 403 });
+    }
+
     // Rate limiting
     const ip = getClientIp(request);
     const rateLimit = await checkRateLimit(`${ip}:/api/employees`, 'normal');
@@ -69,7 +84,7 @@ export async function POST(request: Request) {
       nom: sanitizeString(validation.data.nom, 100),
       prenom: sanitizeString(validation.data.prenom, 100),
       telephone: sanitizeTelephone(validation.data.telephone),
-      email: body.email ? sanitizeEmail(body.email) : undefined,
+      email: body.email ? (sanitizeEmail(body.email) || body.email) : undefined,
     };
 
     const employee = await prisma.employee.create({
@@ -84,6 +99,16 @@ export async function POST(request: Request) {
         roleId: body.roleId ? parseInt(body.roleId) : 1,
       },
       include: { role: true },
+    });
+
+    // Log security event - employee creation
+    await logSecurityEvent({
+      userId: (session.user as any).id,
+      action: SecurityAction.EMPLOYEE_CREATED,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      details: { employeeId: employee.id, nom: sanitized.nom, prenom: sanitized.prenom },
+      severity: SecuritySeverity.WARNING,
     });
 
     // Create user if email provided

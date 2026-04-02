@@ -3,6 +3,8 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { sanitizeString, sanitizeTelephone } from '@/lib/sanitize';
+import { verifyCsrfMiddleware } from '@/lib/csrf';
+import { logSecurityEvent, SecurityAction, SecuritySeverity } from '@/lib/security-logger';
 
 
 
@@ -41,6 +43,19 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // CSRF Token validation
+    const csrfValid = await verifyCsrfMiddleware(request);
+    if (!csrfValid) {
+      const ip = getClientIp(request);
+      await logSecurityEvent({
+        action: SecurityAction.CSRF_VIOLATION,
+        ipAddress: ip,
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: SecuritySeverity.WARNING,
+      });
+      return Response.json({ error: 'CSRF token invalid or missing' }, { status: 403 });
+    }
+
     // Rate limiting
     const ip = getClientIp(request);
     const rateLimit = await checkRateLimit(`${ip}:/api/employees/[id]`, 'normal');
@@ -87,6 +102,16 @@ export async function PUT(
       include: { role: true },
     });
 
+    // Log security event - employee modification
+    await logSecurityEvent({
+      userId: (session.user as any).id,
+      action: SecurityAction.EMPLOYEE_MODIFIED,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      details: { employeeId: id, nom: sanitized.nom, prenom: sanitized.prenom },
+      severity: SecuritySeverity.WARNING,
+    });
+
     return Response.json(employee);
   } catch (error) {
     return Response.json(
@@ -101,6 +126,19 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // CSRF Token validation
+    const csrfValid = await verifyCsrfMiddleware(request);
+    if (!csrfValid) {
+      const ip = getClientIp(request);
+      await logSecurityEvent({
+        action: SecurityAction.CSRF_VIOLATION,
+        ipAddress: ip,
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: SecuritySeverity.CRITICAL,
+      });
+      return Response.json({ error: 'CSRF token invalid or missing' }, { status: 403 });
+    }
+
     // Rate limiting
     const ip = getClientIp(request);
     const rateLimit = await checkRateLimit(`${ip}:/api/employees/[id]/delete`, 'normal');
@@ -123,8 +161,20 @@ export async function DELETE(
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const employee = await prisma.employee.findUnique({ where: { id } });
+
     await prisma.employee.delete({
       where: { id },
+    });
+
+    // Log security event - CRITICAL: employee deletion
+    await logSecurityEvent({
+      userId: (session.user as any).id,
+      action: SecurityAction.EMPLOYEE_DELETED,
+      ipAddress: ip,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      details: { employeeId: id, nom: employee?.nom, prenom: employee?.prenom },
+      severity: SecuritySeverity.CRITICAL,
     });
 
     return Response.json({ success: true });
