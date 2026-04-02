@@ -1,6 +1,8 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { FormInput } from '@/components/FormInput';
+import { FormTextarea } from '@/components/FormTextarea';
 import { usePermission } from '@/hooks/usePermission';
 import { useState, useEffect } from 'react';
 import { Save, Lock, Mail, Bell } from 'lucide-react';
@@ -220,81 +222,56 @@ export default function ParametresPage() {
                 Paramètres du Restaurant
               </h2>
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Nom du restaurant
-                </label>
-                <input
-                  type="text"
-                  value={restaurantData.nom}
-                  onChange={(e) =>
-                    setRestaurantData({ ...restaurantData, nom: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                />
-              </div>
+              <FormInput
+                label="Nom du restaurant"
+                type="text"
+                value={restaurantData.nom}
+                onChange={(e) =>
+                  setRestaurantData({ ...restaurantData, nom: e.target.value })
+                }
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Adresse
-                </label>
-                <textarea
-                  value={restaurantData.adresse}
-                  onChange={(e) =>
-                    setRestaurantData({ ...restaurantData, adresse: e.target.value })
-                  }
-                  rows={3}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                />
-              </div>
+              <FormTextarea
+                label="Adresse"
+                value={restaurantData.adresse}
+                onChange={(e) =>
+                  setRestaurantData({ ...restaurantData, adresse: e.target.value })
+                }
+                rows={3}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Téléphone
-                </label>
-                <input
-                  type="tel"
-                  value={restaurantData.telephone}
-                  onChange={(e) =>
-                    setRestaurantData({ ...restaurantData, telephone: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                />
-              </div>
+              <FormInput
+                label="Téléphone"
+                type="tel"
+                value={restaurantData.telephone}
+                onChange={(e) =>
+                  setRestaurantData({ ...restaurantData, telephone: e.target.value })
+                }
+              />
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-2">
-                    Heure d'ouverture
-                  </label>
-                  <input
-                    type="time"
-                    value={restaurantData.heureOuverture}
-                    onChange={(e) =>
-                      setRestaurantData({
-                        ...restaurantData,
-                        heureOuverture: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-2">
-                    Heure de fermeture
-                  </label>
-                  <input
-                    type="time"
-                    value={restaurantData.heureFermeture}
-                    onChange={(e) =>
-                      setRestaurantData({
-                        ...restaurantData,
-                        heureFermeture: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                  />
-                </div>
+                <FormInput
+                  label="Heure d'ouverture"
+                  type="time"
+                  value={restaurantData.heureOuverture}
+                  onChange={(e) =>
+                    setRestaurantData({
+                      ...restaurantData,
+                      heureOuverture: e.target.value,
+                    })
+                  }
+                />
+                <FormInput
+                  label="Heure de fermeture"
+                  type="time"
+                  value={restaurantData.heureFermeture}
+                  onChange={(e) =>
+                    setRestaurantData({
+                      ...restaurantData,
+                      heureFermeture: e.target.value,
+                    })
+                  }
+                />
               </div>
 
               <button
@@ -334,19 +311,14 @@ export default function ParametresPage() {
                 Compte Administrateur
               </h2>
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={accountData.email}
-                  onChange={(e) =>
-                    setAccountData({ ...accountData, email: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                />
-              </div>
+              <FormInput
+                label="Email"
+                type="email"
+                value={accountData.email}
+                onChange={(e) =>
+                  setAccountData({ ...accountData, email: e.target.value })
+                }
+              />
 
               <div className="border-t border-[#E5E7EB] pt-6">
                 <h3 className="font-medium text-[#1A1A2E] mb-4">
@@ -354,56 +326,41 @@ export default function ParametresPage() {
                 </h3>
 
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[#374151] mb-2">
-                      Mot de passe actuel
-                    </label>
-                    <input
-                      type="password"
-                      value={accountData.currentPassword}
-                      onChange={(e) =>
-                        setAccountData({
-                          ...accountData,
-                          currentPassword: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                    />
-                  </div>
+                  <FormInput
+                    label="Mot de passe actuel"
+                    type="password"
+                    value={accountData.currentPassword}
+                    onChange={(e) =>
+                      setAccountData({
+                        ...accountData,
+                        currentPassword: e.target.value,
+                      })
+                    }
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-[#374151] mb-2">
-                      Nouveau mot de passe
-                    </label>
-                    <input
-                      type="password"
-                      value={accountData.newPassword}
-                      onChange={(e) =>
-                        setAccountData({
-                          ...accountData,
-                          newPassword: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                    />
-                  </div>
+                  <FormInput
+                    label="Nouveau mot de passe"
+                    type="password"
+                    value={accountData.newPassword}
+                    onChange={(e) =>
+                      setAccountData({
+                        ...accountData,
+                        newPassword: e.target.value,
+                      })
+                    }
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-[#374151] mb-2">
-                      Confirmer le mot de passe
-                    </label>
-                    <input
-                      type="password"
-                      value={accountData.confirmPassword}
-                      onChange={(e) =>
-                        setAccountData({
-                          ...accountData,
-                          confirmPassword: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                    />
-                  </div>
+                  <FormInput
+                    label="Confirmer le mot de passe"
+                    type="password"
+                    value={accountData.confirmPassword}
+                    onChange={(e) =>
+                      setAccountData({
+                        ...accountData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                  />
                 </div>
               </div>
 

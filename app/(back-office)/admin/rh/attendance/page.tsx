@@ -1,6 +1,8 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { FormSelect } from '@/components/FormSelect';
+import { FormInput } from '@/components/FormInput';
 import { usePermission } from '@/hooks/usePermission';
 import { useEffect, useState } from 'react';
 import { Download, FileText } from 'lucide-react';
@@ -180,25 +182,23 @@ export default function AttendancePage() {
               <label className="block text-sm font-medium text-[#374151] mb-1">
                 Employé
               </label>
-              <select
-                value={selectedEmployee}
-                onChange={(e) => setSelectedEmployee(e.target.value)}
-                className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-              >
-                <option value="">Tous les employés</option>
-                {employees.map((emp) => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.prenom} {emp.nom}
-                  </option>
-                ))}
-              </select>
+            <FormSelect
+              label="Employé"
+              value={selectedEmployee}
+              onChange={(e) => setSelectedEmployee(e.target.value)}
+              options={[
+                { value: '', label: 'Tous les employés' },
+                ...employees.map((emp) => ({
+                  value: emp.id,
+                  label: `${emp.prenom} ${emp.nom}`,
+                })),
+              ]}
+            />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#374151] mb-1">
-                Date
-              </label>
-              <input
+              <FormInput
+                label="Date"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}

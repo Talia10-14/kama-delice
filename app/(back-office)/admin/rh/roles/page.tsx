@@ -1,6 +1,7 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { FormInput } from '@/components/FormInput';
 import { usePermission } from '@/hooks/usePermission';
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
@@ -202,17 +203,13 @@ export default function RolesPage() {
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1">
-                  Nom du rôle
-                </label>
-                <input
-                  type="text"
-                  value={roleName}
-                  onChange={(e) => setRoleName(e.target.value)}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                />
-              </div>
+              <FormInput
+                label="Nom du rôle"
+                type="text"
+                value={roleName}
+                onChange={(e) => setRoleName(e.target.value)}
+                required
+              />
 
               <div>
                 <label className="block text-sm font-medium text-[#374151] mb-2">

@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
+import { FormInput } from '@/components/FormInput';
 
 const loginSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -70,47 +71,40 @@ export function LoginForm() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
-            <div>
-              <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 sm:left-4 top-3 sm:top-4 text-gray-400" size={20} />
-                <input
-                  type="email"
-                  placeholder="admin@kama-delices.com"
-                  {...register('email')}
-                  className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 text-base text-gray-900 placeholder-gray-500 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition autofill:bg-white autofill:text-gray-900"
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.email.message}</p>
-              )}
-            </div>
+            <FormInput
+              label="Email"
+              type="email"
+              placeholder="admin@kama-delices.com"
+              icon={<Mail size={20} />}
+              error={errors.email?.message}
+              required
+              {...register('email')}
+            />
 
             <div>
               <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2">
                 Mot de passe
+                <span className="text-red-600 ml-1">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 sm:left-4 top-3 sm:top-4 text-gray-400" size={20} />
+                <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   {...register('password')}
-                  className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2 sm:py-3 text-base text-gray-900 placeholder-gray-500 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition autofill:bg-white autofill:text-gray-900"
+                  className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2 sm:py-3 text-base text-gray-900 placeholder-gray-500 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition-all duration-200 shadow-sm hover:shadow-md autofill:bg-white autofill:text-gray-900"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 sm:right-4 top-3 sm:top-4 text-gray-400 hover:text-gray-600 transition"
+                  className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-2 text-sm text-red-600 font-medium">{errors.password.message}</p>
               )}
             </div>
 

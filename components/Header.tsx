@@ -87,7 +87,7 @@ export function Header({ title, unreadMessages = 0 }: HeaderProps) {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs sm:text-sm font-medium text-[#1A1A2E] break-words">
+                          <p className="text-xs sm:text-sm font-medium text-[#1A1A2E] wrap-break-word">
                             {notification.message}
                           </p>
                           <p className="text-xs text-[#6B7280] mt-1">

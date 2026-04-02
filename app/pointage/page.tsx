@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Clock } from 'lucide-react';
+import { FormInput } from '@/components/FormInput';
 
 export default function PointagePage() {
   const [time, setTime] = useState<string>('');
@@ -95,34 +96,24 @@ export default function PointagePage() {
 
         {/* Form */}
         <form onSubmit={handlePointage} className="space-y-6">
-          {/* Email */}
-          <div>
-            <label className="block text-center text-lg font-medium text-[#374151] mb-3">
-              Identifiant
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@kama-delices.com"
-              className="w-full px-6 py-4 text-2xl border-2 border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A] text-center"
-              autoFocus
-            />
-          </div>
+          <FormInput
+            label="Identifiant"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="email@kama-delices.com"
+            autoFocus
+            className="text-2xl py-4 text-center"
+          />
 
-          {/* Password */}
-          <div>
-            <label className="block text-center text-lg font-medium text-[#374151] mb-3">
-              Mot de passe
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-6 py-4 text-2xl border-2 border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A] text-center tracking-widest"
-            />
-          </div>
+          <FormInput
+            label="Mot de passe"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className="text-2xl py-4 text-center tracking-widest"
+          />
 
           {/* Submit Button */}
           <button

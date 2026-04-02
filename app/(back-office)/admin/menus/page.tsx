@@ -1,6 +1,9 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { FormInput } from '@/components/FormInput';
+import { FormSelect } from '@/components/FormSelect';
+import { FormTextarea } from '@/components/FormTextarea';
 import { usePermission } from '@/hooks/usePermission';
 import { useEffect, useState } from 'react';
 import { Plus, ToggleLeft, X } from 'lucide-react';
@@ -187,60 +190,42 @@ export default function MenusPage() {
             </div>
 
             <form onSubmit={handleAddMenu} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1">
-                  Nom
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                />
-              </div>
+              <FormInput
+                label="Nom"
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A] resize-none h-20"
-                />
-              </div>
+              <FormTextarea
+                label="Description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                charLimit={500}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1">
-                  Catégorie
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <FormSelect
+                label="Catégorie"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </FormSelect>
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1">
-                  Prix (€)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                />
-              </div>
+              <FormInput
+                label="Prix (€)"
+                type="number"
+                step="0.01"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                required
+              />
 
               <div className="flex gap-3 pt-4">
                 <button

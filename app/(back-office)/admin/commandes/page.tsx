@@ -1,6 +1,6 @@
 'use client';
 
-import { Header } from '@/components/Header';
+import { FormSelect } from '@/components/FormSelect';
 import { usePermission } from '@/hooks/usePermission';
 import { useEffect, useState } from 'react';
 import { ChevronDown, Eye, X } from 'lucide-react';
@@ -123,18 +123,18 @@ export default function CommandesPage() {
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <label className="text-sm font-medium text-[#374151]">Filtrer :</label>
-          <select
+          <FormSelect
+            label="Statut"
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-          >
-            <option value="">Tous les statuts</option>
-            {statuses.map((status) => (
-              <option key={status} value={status}>
-                {statusLabels[status]}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: '', label: 'Tous les statuts' },
+              ...statuses.map((status) => ({
+                value: status,
+                label: statusLabels[status],
+              })),
+            ]}
+          />
         </div>
 
         {/* Table */}

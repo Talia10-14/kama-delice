@@ -1,6 +1,7 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { FormSelect } from '@/components/FormSelect';
 import { usePermission } from '@/hooks/usePermission';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -111,31 +112,29 @@ export default function RHPage() {
           {/* Actions */}
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-3 lg:gap-4">
             <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 lg:gap-4 w-full sm:w-auto">
-              <select
+              <FormSelect
                 value={selectedContrat}
                 onChange={(e) => setSelectedContrat(e.target.value)}
-                className="flex-1 sm:flex-none px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A] text-xs sm:text-sm"
-              >
-                <option value="">Tous les contrats</option>
-                {typeContrats.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: '', label: 'Tous les contrats' },
+                  ...typeContrats.map((type) => ({
+                    value: type,
+                    label: type,
+                  })),
+                ]}
+              />
 
-              <select
+              <FormSelect
                 value={selectedStatut}
                 onChange={(e) => setSelectedStatut(e.target.value)}
-                className="flex-1 sm:flex-none px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A] text-xs sm:text-sm"
-              >
-                <option value="">Tous les statuts</option>
-                {statuts.map((statut) => (
-                  <option key={statut} value={statut}>
-                    {statut}
-                  </option>
-                ))}
-              </select>
+                options={[
+                  { value: '', label: 'Tous les statuts' },
+                  ...statuts.map((statut) => ({
+                    value: statut,
+                    label: statut,
+                  })),
+                ]}
+              />
             </div>
 
             <Link
@@ -177,7 +176,7 @@ export default function RHPage() {
                       <div className="flex items-center gap-0.5 sm:gap-1 min-w-0 flex-wrap">
                         <span className="truncate text-xs sm:text-xs">{emp.prenom} {emp.nom}</span>
                         {emp.typeContrat === 'STAGIAIRE' && isEndingSoon(emp.dateFin) && (
-                          <div className="relative group flex-shrink-0">
+                          <div className="relative group shrink-0">
                             <AlertTriangle
                               size={12}
                               className="text-orange-500 cursor-help"
@@ -211,13 +210,13 @@ export default function RHPage() {
                         href={`/admin/rh/employees/${emp.id}`}
                         className="inline-flex items-center justify-center sm:justify-start gap-0.5 sm:gap-1 px-1.5 sm:px-2 lg:px-3 py-0.5 sm:py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition-colors whitespace-nowrap"
                       >
-                        <Edit2 size={12} className="flex-shrink-0" />
+                        <Edit2 size={12} className="shrink-0" />
                         <span className="hidden sm:inline">M.</span>
                         <span className="hidden md:inline">odifier</span>
                       </Link>
                       {isAdmin() && (
                         <button className="inline-flex items-center justify-center sm:justify-start gap-0.5 sm:gap-1 px-1.5 sm:px-2 lg:px-3 py-0.5 sm:py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200 transition-colors whitespace-nowrap">
-                          <Lock size={12} className="flex-shrink-0" />
+                          <Lock size={12} className="shrink-0" />
                           <span className="hidden md:inline">D.</span>
                         </button>
                       )}

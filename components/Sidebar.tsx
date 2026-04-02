@@ -128,7 +128,7 @@ export function Sidebar() {
         {/* User Info */}
         <div className="border-t border-gray-700 p-3 sm:p-4 space-y-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-[#E8690A] flex items-center justify-center font-bold text-white flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-[#E8690A] flex items-center justify-center font-bold text-white shrink-0">
               {user?.name?.[0] || 'U'}
             </div>
             <div className="flex-1 min-w-0">

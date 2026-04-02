@@ -63,7 +63,7 @@ export default function DashboardPage() {
           <p className="text-xs sm:text-sm text-[#6B7280] mb-1 sm:mb-2">{title}</p>
           <p className="text-2xl sm:text-3xl font-bold text-[#1A1A2E] truncate">{value}</p>
         </div>
-        <Icon className="w-10 sm:w-12 h-10 sm:h-12 text-[#E8690A] flex-shrink-0" />
+        <Icon className="w-10 sm:w-12 h-10 sm:h-12 text-[#E8690A] shrink-0" />
       </div>
     </div>
   );
@@ -106,7 +106,7 @@ export default function DashboardPage() {
           {stagiaireAlerts.length > 0 && (
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex items-center gap-3 mb-4">
-                <AlertCircle className="w-5 sm:w-6 h-5 sm:h-6 text-orange-500 flex-shrink-0" />
+                <AlertCircle className="w-5 sm:w-6 h-5 sm:h-6 text-orange-500 shrink-0" />
                 <h2 className="text-base sm:text-lg font-semibold text-[#1A1A2E]">
                   Alertes urgentes
                 </h2>

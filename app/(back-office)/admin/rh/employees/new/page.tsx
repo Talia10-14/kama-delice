@@ -1,6 +1,8 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { FormInput } from '@/components/FormInput';
+import { FormSelect } from '@/components/FormSelect';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -124,57 +126,35 @@ export default function NewEmployeePage() {
                 Informations personnelles
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-1">
-                    Nom *
-                  </label>
-                  <input
-                    {...register('nom')}
-                    type="text"
-                    className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                  />
-                  {errors.nom && (
-                    <p className="mt-1 text-xs text-red-600">{errors.nom.message}</p>
-                  )}
-                </div>
+                <FormInput
+                  label="Nom"
+                  type="text"
+                  error={errors.nom?.message}
+                  required
+                  {...register('nom')}
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-1">
-                    Prénom *
-                  </label>
-                  <input
-                    {...register('prenom')}
-                    type="text"
-                    className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                  />
-                  {errors.prenom && (
-                    <p className="mt-1 text-xs text-red-600">{errors.prenom.message}</p>
-                  )}
-                </div>
+                <FormInput
+                  label="Prénom"
+                  type="text"
+                  error={errors.prenom?.message}
+                  required
+                  {...register('prenom')}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-1">
-                    Téléphone
-                  </label>
-                  <input
-                    {...register('telephone')}
-                    type="tel"
-                    className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                  />
-                </div>
+                <FormInput
+                  label="Téléphone"
+                  type="tel"
+                  {...register('telephone')}
+                />
 
-                <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-1">
-                    Email
-                  </label>
-                  <input
-                    {...register('email')}
-                    type="email"
-                    className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                  />
-                </div>
+                <FormInput
+                  label="Email"
+                  type="email"
+                  {...register('email')}
+                />
               </div>
             </div>
 
@@ -184,50 +164,39 @@ export default function NewEmployeePage() {
                 Contrat
               </h3>
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1">
-                  Type de contrat *
-                </label>
-                <select
-                  {...register('typeContrat')}
-                  onChange={(e) => setTypeContrat(e.target.value)}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                >
-                  <option value="EMPLOYE">Employé</option>
-                  <option value="STAGIAIRE">Stagiaire</option>
-                  <option value="PRESTATAIRE">Prestataire</option>
-                </select>
-              </div>
+              <FormSelect
+                label="Type de contrat"
+                error={errors.typeContrat?.message}
+                required
+                {...register('typeContrat')}
+                onChange={(e) => {
+                  setTypeContrat(e.target.value);
+                  register('typeContrat').onChange?.(e);
+                }}
+              >
+                <option value="">Sélectionner un type</option>
+                <option value="EMPLOYE">Employé</option>
+                <option value="STAGIAIRE">Stagiaire</option>
+                <option value="PRESTATAIRE">Prestataire</option>
+              </FormSelect>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#374151] mb-1">
-                    Date d'entrée *
-                  </label>
-                  <input
-                    {...register('dateEntree')}
-                    type="date"
-                    className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                  />
-                  {errors.dateEntree && (
-                    <p className="mt-1 text-xs text-red-600">{errors.dateEntree.message}</p>
-                  )}
-                </div>
+                <FormInput
+                  label="Date d'entrée"
+                  type="date"
+                  error={errors.dateEntree?.message}
+                  required
+                  {...register('dateEntree')}
+                />
 
                 {typeContrat === 'STAGIAIRE' && (
-                  <div>
-                    <label className="block text-sm font-medium text-[#374151] mb-1">
-                      Date de fin de stage *
-                    </label>
-                    <input
-                      {...register('dateFin')}
-                      type="date"
-                      className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                    />
-                    {errors.dateFin && (
-                      <p className="mt-1 text-xs text-red-600">{errors.dateFin.message}</p>
-                    )}
-                  </div>
+                  <FormInput
+                    label="Date de fin de stage"
+                    type="date"
+                    error={errors.dateFin?.message}
+                    required
+                    {...register('dateFin')}
+                  />
                 )}
               </div>
             </div>
@@ -238,25 +207,19 @@ export default function NewEmployeePage() {
                 Rôle
               </h3>
 
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-1">
-                  Rôle *
-                </label>
-                <select
-                  {...register('roleId')}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-[#E8690A]"
-                >
-                  <option value="">Sélectionner un rôle</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.libelle}
-                    </option>
-                  ))}
-                </select>
-                {errors.roleId && (
-                  <p className="mt-1 text-xs text-red-600">{errors.roleId.message}</p>
-                )}
-              </div>
+              <FormSelect
+                label="Rôle"
+                error={errors.roleId?.message}
+                required
+                {...register('roleId')}
+              >
+                <option value="">Sélectionner un rôle</option>
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.libelle}
+                  </option>
+                ))}
+              </FormSelect>
             </div>
 
             {/* Buttons */}
