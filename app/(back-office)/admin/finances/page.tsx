@@ -3,102 +3,95 @@
 import { Header } from '@/components/Header';
 import { usePermission } from '@/hooks/usePermission';
 import { useEffect, useState } from 'react';
-import { TrendingUp, Download, FileText } from 'lucide-react';
-import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
+import { TrendingUp, TrendingDown } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+
+interface CAStat {
+  date: string;
+  ca: number;
+}
+
+interface CommandeStat {
+  jour: string;
+  nombre: number;
+}
+
+interface StatutStat {
+  name: string;
+  value: number;
+  fill: string;
+}
+
+interface PlatStat {
+  nom: string;
+  quantite: number;
+  chiffreAffaires: number;
+}
 
 export default function FinancesPage() {
-  const { hasPermission } = usePermission();
-  const [stats, setStats] = useState({
-    todayRevenue: 0,
-    weekRevenue: 0,
-    monthRevenue: 0,
-    todayOrders: 0,
-    weekOrders: 0,
-    monthOrders: 0,
-    cancellationRate: 0,
-  });
+  const { isAdmin } = usePermission();
+  const [caData, setCaData] = useState<CAStat[]>([]);
+  const [commandesData, setCommandesData] = useState<CommandeStat[]>([]);
+  const [statutData, setStatutData] = useState<StatutStat[]>([]);
+  const [platsData, setPlatsData] = useState<PlatStat[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchFinances();
-  }, []);
+    if (!isAdmin()) return;
 
-  const fetchFinances = async () => {
-    try {
-      const response = await fetch('/api/finances');
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
+    const fetchStats = async () => {
+      try {
+        const [caRes, commandesRes, statutRes, platsRes] = await Promise.all([
+          fetch('/api/stats/ca-journalier?periode=30'),
+          fetch('/api/stats/commandes-par-jour'),
+          fetch('/api/stats/repartition-statuts'),
+          fetch('/api/stats/top-plats'),
+        ]);
+
+        if (caRes.ok) {
+          const caDataRes = await caRes.json();
+          setCaData(caDataRes.data || []);
+        }
+
+        if (commandesRes.ok) {
+          const commandesDataRes = await commandesRes.json();
+          setCommandesData(commandesDataRes.data || []);
+        }
+
+        if (statutRes.ok) {
+          const statutDataRes = await statutRes.json();
+          setStatutData(statutDataRes.data || []);
+        }
+
+        if (platsRes.ok) {
+          const platsDataRes = await platsRes.json();
+          setPlatsData(platsDataRes.data || []);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Failed to fetch finances:', error);
-    }
-  };
-
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-
-    doc.setFontSize(16);
-    doc.text('Rapport Financier', pageWidth / 2, 15, { align: 'center' });
-
-    doc.setFontSize(10);
-    doc.text(
-      `Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`,
-      pageWidth / 2,
-      25,
-      { align: 'center' }
-    );
-
-    let yPos = 40;
-
-    const addSection = (title: string, data: Array<{ label: string; value: string }>) => {
-      doc.setFontSize(12);
-      doc.text(title, 15, yPos);
-      yPos += 10;
-
-      doc.setFontSize(10);
-      data.forEach(({ label, value }) => {
-        doc.text(`${label}: ${value}`, 20, yPos);
-        yPos += 7;
-      });
-      yPos += 5;
     };
 
-    addSection('Chiffre d\'affaires', [
-      { label: 'Aujourd\'hui', value: `${stats.todayRevenue.toFixed(2)}€` },
-      { label: 'Cette semaine', value: `${stats.weekRevenue.toFixed(2)}€` },
-      { label: 'Ce mois', value: `${stats.monthRevenue.toFixed(2)}€` },
-    ]);
+    fetchStats();
+  }, [isAdmin]);
 
-    addSection('Commandes', [
-      { label: 'Aujourd\'hui', value: `${stats.todayOrders}` },
-      { label: 'Cette semaine', value: `${stats.weekOrders}` },
-      { label: 'Ce mois', value: `${stats.monthOrders}` },
-    ]);
-
-    addSection('Statistiques', [
-      { label: 'Taux d\'annulation', value: `${stats.cancellationRate.toFixed(2)}%` },
-    ]);
-
-    doc.save('rapport-financier.pdf');
-  };
-
-  const exportExcel = () => {
-    const data = [
-      { Période: 'Aujourd\'hui', Revenue: stats.todayRevenue, Commandes: stats.todayOrders },
-      { Période: 'Cette semaine', Revenue: stats.weekRevenue, Commandes: stats.weekOrders },
-      { Période: 'Ce mois', Revenue: stats.monthRevenue, Commandes: stats.monthOrders },
-      { Période: 'Taux d\'annulation', Revenue: `${stats.cancellationRate}%`, Commandes: '-' },
-    ];
-
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Finances');
-    XLSX.writeFile(wb, 'rapport-financier.xlsx');
-  };
-
-  if (!hasPermission('voir_rapports')) {
+  if (!isAdmin()) {
     return (
       <div className="flex flex-col">
         <Header title="Finances" />
@@ -111,93 +104,146 @@ export default function FinancesPage() {
     );
   }
 
-  const Stat = ({
-    title,
-    value,
-    subtitle,
-  }: {
-    title: string;
-    value: string;
-    subtitle?: string;
-  }) => (
-    <div className="bg-white rounded-lg shadow p-6">
-      <p className="text-[#6B7280] text-sm mb-2">{title}</p>
-      <p className="text-3xl font-bold text-[#1A1A2E]">{value}</p>
-      {subtitle && <p className="text-xs text-[#6B7280] mt-2">{subtitle}</p>}
-    </div>
-  );
+  if (isLoading) {
+    return (
+      <div className="flex flex-col">
+        <Header title="Finances" />
+        <div className="p-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-96 bg-[#F9FAFB] rounded-lg" />
+            <div className="h-96 bg-[#F9FAFB] rounded-lg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const formatCurrency = (value: any) => {
+    if (typeof value === 'number') {
+      return `${value.toLocaleString('fr-FR')} FCFA`;
+    }
+    return value;
+  };
 
   return (
     <div className="flex flex-col">
       <Header title="Finances" />
 
       <div className="p-8 space-y-8">
-        {/* Export Buttons */}
-        <div className="flex gap-3">
-          <button
-            onClick={exportPDF}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-          >
-            <FileText size={20} />
-            Exporter PDF
-          </button>
-          <button
-            onClick={exportExcel}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-          >
-            <Download size={20} />
-            Exporter Excel
-          </button>
-        </div>
-
-        {/* Revenue Section */}
-        <div>
+        {/* Graphique CA sur 30 jours */}
+        <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-[#1A1A2E] mb-4">
-            Chiffre d'affaires
+            Évolution du Chiffre d'Affaires (30 jours)
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Stat
-              title="Aujourd'hui"
-              value={`${stats.todayRevenue.toFixed(2)}€`}
-            />
-            <Stat
-              title="Cette semaine"
-              value={`${stats.weekRevenue.toFixed(2)}€`}
-            />
-            <Stat title="Ce mois" value={`${stats.monthRevenue.toFixed(2)}€`} />
+          <div className="overflow-x-auto">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={caData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip formatter={formatCurrency} />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="ca"
+                  stroke="#E8690A"
+                  name="CA (FCFA)"
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Orders Section */}
-        <div>
+        {/* Graphique commandes par jour */}
+        <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-[#1A1A2E] mb-4">
-            Nombre de commandes
+            Commandes par Jour de Semaine
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Stat title="Aujourd'hui" value={`${stats.todayOrders}`} />
-            <Stat title="Cette semaine" value={`${stats.weekOrders}`} />
-            <Stat title="Ce mois" value={`${stats.monthOrders}`} />
+          <div className="overflow-x-auto">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={commandesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="jour" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="nombre" fill="#E8690A" name="Nombre de commandes" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Statistics */}
-        <div>
+        {/* Graphique répartition des statuts */}
+        <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-[#1A1A2E] mb-4">
-            Statistiques
+            Répartition des Statuts de Commandes
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Stat
-              title="Taux d'annulation"
-              value={`${stats.cancellationRate.toFixed(2)}%`}
-            />
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-[#6B7280] text-sm mb-2">Moyenne par commande</p>
-              <p className="text-3xl font-bold text-[#1A1A2E]">
-                {stats.todayOrders > 0
-                  ? `${(stats.todayRevenue / stats.todayOrders).toFixed(2)}€`
-                  : '-'}
-              </p>
-            </div>
+          <div className="flex justify-center">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={statutData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => {
+                    if (typeof percent === 'number') {
+                      return `${name} ${(percent * 100).toFixed(0)}%`;
+                    }
+                    return name || '';
+                  }}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {statutData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => value?.toString()} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Top 5 des plats */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-[#1A1A2E] mb-4">
+            Top 5 des Plats les Plus Commandés
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#E5E7EB]">
+                  <th className="text-left py-3 px-4 font-semibold text-[#1A1A2E]">
+                    Plat
+                  </th>
+                  <th className="text-right py-3 px-4 font-semibold text-[#1A1A2E]">
+                    Quantités commandées
+                  </th>
+                  <th className="text-right py-3 px-4 font-semibold text-[#1A1A2E]">
+                    CA généré (FCFA)
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {platsData.map((plat, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-[#E5E7EB] hover:bg-[#F9FAFB]"
+                  >
+                    <td className="py-3 px-4 text-[#374151]">{plat.nom}</td>
+                    <td className="text-right py-3 px-4 text-[#374151]">
+                      {plat.quantite}
+                    </td>
+                    <td className="text-right py-3 px-4 text-[#1A1A2E] font-semibold">
+                      {plat.chiffreAffaires.toLocaleString('fr-FR')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

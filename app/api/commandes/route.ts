@@ -1,6 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { notifyCommandeRecue } from '@/lib/whatsapp-templates';
+import { sendEmail } from '@/lib/mailer';
 
 
 
@@ -55,6 +57,33 @@ export async function POST(request: Request) {
         customOrder: body.customOrder || false,
       },
     });
+
+    // Envoyer une notification WhatsApp au client si le numéro est fourni
+    if (body.clientPhone) {
+      try {
+        await notifyCommandeRecue(body.clientPhone, order.orderNumber || order.id);
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi du SMS WhatsApp:', error);
+        // Ne pas bloquer la réponse si l'envoi échoue
+      }
+    }
+
+    // Envoyer une notification email aux admins
+    try {
+      const adminEmail = process.env.EMAIL_FROM || 'admin@kama-delices.com';
+      await sendEmail(
+        adminEmail,
+        `Nouvelle commande reçue - ${order.orderNumber || order.id}`,
+        `<p>Une nouvelle commande a été reçue:</p>
+         <p><strong>Numéro:</strong> ${order.orderNumber || order.id}</p>
+         <p><strong>Client:</strong> ${order.clientName}</p>
+         <p><strong>Montant:</strong> ${order.amount} FCFA</p>
+         <p><strong>Détails:</strong> ${order.content}</p>`,
+        `Nouvelle commande: ${order.orderNumber}\nClient: ${order.clientName}\nMontant: ${order.amount} FCFA`
+      );
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email:', error);
+    }
 
     return Response.json(order);
   } catch (error) {

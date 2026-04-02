@@ -56,6 +56,13 @@ model User {
   password String
   employeeId String? @unique
   employee Employee? @relation(fields: [employeeId], references: [id])
+  failedLoginAttempts Int @default(0)
+  lockedUntil DateTime?
+  lastLoginAt DateTime?
+  lastLoginIp String?
+  securityLogs SecurityLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   @@map("users")
 }
@@ -129,4 +136,93 @@ model Message {
   createdAt DateTime @default(now())
   
   @@map("messages")
+}
+
+model OTPCode {
+  id String @id @default(cuid())
+  telephone String
+  code String
+  expiresAt DateTime
+  used Boolean @default(false)
+  createdAt DateTime @default(now())
+  
+  @@index([telephone])
+  @@map("otp_codes")
+}
+
+model Customer {
+  id String @id @default(cuid())
+  telephone String @unique
+  nom String
+  prenom String
+  addresses CustomerAddress[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([telephone])
+  @@map("customers")
+}
+
+model CustomerAddress {
+  id String @id @default(cuid())
+  customerId String
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  libelle String
+  adresseComplete String
+  isDefault Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([customerId])
+  @@map("customer_addresses")
+}
+
+model RestaurantSettings {
+  id String @id @default(cuid())
+  nom String @default("Kama-Délices")
+  adresse String @default("")
+  telephone String @default("")
+  heureOuverture String @default("08:00")
+  heureFermeture String @default("22:00")
+  joursOuverture String @default("Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche")
+  email String @default("")
+  logo String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("restaurant_settings")
+}
+
+model NotificationSettings {
+  id String @id @default(cuid())
+  emailNouvelleCommande Boolean @default(true)
+  emailAnnulationCommande Boolean @default(true)
+  emailNouveauMessage Boolean @default(true)
+  emailRapportJournalier Boolean @default(true)
+  emailRapportHebdomadaire Boolean @default(false)
+  emailRapportMensuel Boolean @default(false)
+  emailAlerteStagiaire Boolean @default(true)
+  reportFrequency String @default("daily")
+  delaiAlerteStagiaire Int @default(7)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("notification_settings")
+}
+
+model SecurityLog {
+  id String @id @default(cuid())
+  userId String?
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action String
+  ipAddress String
+  userAgent String
+  details Json?
+  severity String @default("INFO") // INFO, WARNING, CRITICAL
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("security_logs")
 }

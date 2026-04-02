@@ -7,7 +7,7 @@ export default function UnauthorizedPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] to-[#16213E] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#1A1A2E] to-[#16213E] flex items-center justify-center p-4">
       <div className="text-center">
         <AlertTriangle className="w-20 h-20 text-red-500 mx-auto mb-6" />
         <h1 className="text-4xl font-bold text-white mb-4">

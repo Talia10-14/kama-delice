@@ -61,7 +61,7 @@ export default function PointagePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A1A2E] to-[#16213E] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#1A1A2E] to-[#16213E] flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-2xl p-8 md:p-12">
         {/* Logo and Title */}
         <div className="text-center mb-12">
@@ -72,7 +72,7 @@ export default function PointagePage() {
         </div>
 
         {/* Current Time */}
-        <div className="text-center mb-12 p-8 bg-gradient-to-r from-[#E8690A] to-[#d25d08] rounded-lg">
+        <div className="text-center mb-12 p-8 bg-linear-to-r from-[#E8690A] to-[#d25d08] rounded-lg">
           <Clock className="w-12 h-12 text-white mx-auto mb-4" />
           <p className="text-white text-sm mb-2">Heure actuelle</p>
           <p className="text-5xl md:text-7xl font-bold text-white font-mono">

@@ -40,7 +40,7 @@ export async function GET() {
       },
     });
 
-    const todayRevenue = todayOrders.reduce((sum, order) => {
+    const todayRevenue = todayOrders.reduce((sum: number, order: any) => {
       return sum + (order.amount || 0);
     }, 0);
 
@@ -51,7 +51,7 @@ export async function GET() {
       },
     });
 
-    const weekRevenue = weekOrders.reduce((sum, order) => {
+    const weekRevenue = weekOrders.reduce((sum: number, order: any) => {
       return sum + (order.amount || 0);
     }, 0);
 
@@ -62,13 +62,13 @@ export async function GET() {
       },
     });
 
-    const monthRevenue = monthOrders.reduce((sum, order) => {
+    const monthRevenue = monthOrders.reduce((sum: number, order: any) => {
       return sum + (order.amount || 0);
     }, 0);
 
     // Cancellation rate
     const cancelledOrders = monthOrders.filter(
-      (o) => o.status === 'CANCELLED'
+      (o: any) => o.status === 'CANCELLED'
     ).length;
     const cancellationRate =
       monthOrders.length > 0

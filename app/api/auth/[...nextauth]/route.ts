@@ -53,7 +53,7 @@ export const authOptions: AuthOptions = {
         }
 
         const permissions = user.employee.role.rolePermissions.map(
-          (rp) => rp.permission.code
+          (rp: any) => rp.permission.code
         );
 
         return {

@@ -1,0 +1,20 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/rapport-journalier",
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/cron/rapport-hebdomadaire",
+      "schedule": "0 8 * * 1"
+    },
+    {
+      "path": "/api/cron/rapport-mensuel",
+      "schedule": "0 8 1 * *"
+    },
+    {
+      "path": "/api/cron/alerte-stagiaires",
+      "schedule": "0 8 * * *"
+    }
+  ]
+}

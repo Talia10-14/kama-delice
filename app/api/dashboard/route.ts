@@ -52,7 +52,7 @@ export async function GET() {
     });
 
     const uniqueEmployees = new Set(
-      presentEmployees.map((a) => a.employeeId)
+      presentEmployees.map((a: any) => a.employeeId)
     ).size;
 
     // Stagiaire alerts (end of internship within 7 days)
