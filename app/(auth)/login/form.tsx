@@ -55,69 +55,69 @@ export function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#1A1A2E] to-[#16213E] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#1A1A2E] to-[#16213E] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-[#1A1A2E] text-center mb-2">
+        <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 md:p-10">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1A1A2E] text-center mb-2">
             Kama-Délices
           </h1>
-          <p className="text-center text-gray-600 mb-8">Connectez-vous à votre compte</p>
+          <p className="text-center text-gray-700 text-sm sm:text-base mb-6 sm:mb-8">Connectez-vous à votre compte</p>
 
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+            <div className="mb-4 p-3 sm:p-4 bg-red-50 border border-red-200 rounded text-red-700 text-xs sm:text-sm">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
             <div>
-              <label className="block text-base font-semibold text-gray-700 mb-2">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-4 text-gray-400" size={20} />
+                <Mail className="absolute left-3 sm:left-4 top-3 sm:top-4 text-gray-400" size={20} />
                 <input
                   type="email"
                   placeholder="admin@kama-delices.com"
                   {...register('email')}
-                  className="w-full pl-12 pr-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition"
+                  className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 text-base text-gray-900 placeholder-gray-500 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition autofill:bg-white autofill:text-gray-900"
                 />
               </div>
               {errors.email && (
-                <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
+                <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-base font-semibold text-gray-700 mb-2">
+              <label className="block text-sm sm:text-base font-semibold text-gray-800 mb-2">
                 Mot de passe
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-4 text-gray-400" size={20} />
+                <Lock className="absolute left-3 sm:left-4 top-3 sm:top-4 text-gray-400" size={20} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   {...register('password')}
-                  className="w-full pl-12 pr-12 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition"
+                  className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2 sm:py-3 text-base text-gray-900 placeholder-gray-500 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition autofill:bg-white autofill:text-gray-900"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition"
+                  className="absolute right-3 sm:right-4 top-3 sm:top-4 text-gray-400 hover:text-gray-600 transition"
                   aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-2 text-xs sm:text-sm text-red-600">{errors.password.message}</p>
               )}
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#E8690A] text-white py-2 rounded font-medium hover:bg-[#d45909] transition disabled:opacity-50"
+              className="w-full bg-[#E8690A] text-white py-2 sm:py-3 px-4 text-base sm:text-lg rounded font-medium hover:bg-[#d45909] transition disabled:opacity-50"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -131,14 +131,14 @@ export function LoginForm() {
           </form>
 
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-gray-600 text-center mb-3 font-semibold">
+            <p className="text-xs sm:text-sm text-gray-700 text-center mb-3 font-semibold">
               Identifiants de démonstration
             </p>
-            <p className="text-xs text-gray-500 text-center">
-              Email: <span className="font-mono bg-gray-100 px-1">admin@kama-delices.com</span>
+            <p className="text-xs text-gray-600 text-center">
+              Email: <span className="font-mono bg-gray-100 px-2 py-1 rounded text-gray-900">admin@kama-delices.com</span>
             </p>
-            <p className="text-xs text-gray-500 text-center">
-              Mot de passe: <span className="font-mono bg-gray-100 px-1">Admin1234</span>
+            <p className="text-xs text-gray-600 text-center mt-1">
+              Mot de passe: <span className="font-mono bg-gray-100 px-2 py-1 rounded text-gray-900">Admin1234</span>
             </p>
           </div>
         </div>
