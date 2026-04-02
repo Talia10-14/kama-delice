@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, useState } from 'react';
+import React, { InputHTMLAttributes } from 'react';
 import { Mail } from 'lucide-react';
 
 interface FormInputEmailProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
@@ -18,19 +18,8 @@ export function FormInputEmail({
   ...props
 }: FormInputEmailProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
-  const [touched, setTouched] = useState(false);
-
-  // Simple email validation
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const displayValue = typeof props.value === 'string' ? props.value : '';
-  const isInvalid = displayValue && !validateEmail(displayValue);
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    setTouched(true);
     if (props.onBlur) {
       props.onBlur(e as any);
     }
@@ -51,29 +40,23 @@ export function FormInputEmail({
           type="email"
           placeholder="utilisateur@exemple.com"
           className={`w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 text-base text-gray-900 placeholder-gray-500 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition-all duration-200 shadow-sm hover:shadow-md ${
-            error && touched ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
-          } ${isInvalid && touched ? 'border-yellow-500' : ''} ${className || ''}`}
+            error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
+          } ${className || ''}`}
           {...props}
           onBlur={handleBlur}
         />
       </div>
 
-      {/* Help text with format info */}
+      {/* Help text with format info - only show if no error */}
       {!error && helpText ? (
         <p className="mt-1 text-sm text-gray-500">{helpText}</p>
-      ) : !error && !touched ? (
+      ) : !error ? (
         <p className="mt-1 text-xs text-gray-400">
           Format: <strong>utilisateur@exemple.com</strong>
         </p>
       ) : null}
 
-      {/* Warning for invalid format (but not quite error) */}
-      {isInvalid && touched && !error && (
-        <p className="mt-2 text-sm text-yellow-600 font-medium">
-          ⚠️ Format d'email invalide (ex: contact@kama-delices.com)
-        </p>
-      )}
-
+      {/* Error message in red */}
       {error && (
         <p className="mt-2 text-sm text-red-600 font-medium">{error}</p>
       )}

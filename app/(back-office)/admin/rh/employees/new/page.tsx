@@ -48,10 +48,11 @@ export default function NewEmployeePage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
   } = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
+    mode: 'onBlur',
     defaultValues: {
       typeContrat: 'EMPLOYE',
     },
@@ -281,7 +282,7 @@ export default function NewEmployeePage() {
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isValid}
                 className="flex-1 px-4 py-2 bg-[#E8690A] text-white rounded-lg hover:bg-[#d25d08] disabled:bg-gray-400 transition-colors font-medium"
               >
                 {isSubmitting ? 'Création...' : 'Créer l\'employé'}
