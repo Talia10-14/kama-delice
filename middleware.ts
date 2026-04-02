@@ -87,7 +87,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Allow setup/initialization routes without authentication
-  if (pathname === "/api/admin/init-db" || pathname === "/api/admin/debug-env") {
+  if (
+    pathname === "/api/admin/init-db" ||
+    pathname === "/api/admin/debug-env" ||
+    pathname === "/api/admin/migrate-db"
+  ) {
     return NextResponse.next();
   }
 
