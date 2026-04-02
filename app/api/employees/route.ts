@@ -1,6 +1,9 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { sanitizeString, sanitizeEmail, sanitizeTelephone } from '@/lib/sanitize';
+import { employeeSchema } from '@/lib/validators';
 import { sendWelcomeEmail } from '@/lib/email';
 import * as bcrypt from 'bcryptjs';
 
@@ -29,6 +32,16 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`${ip}:/api/employees`, 'normal');
+    if (!rateLimit.success) {
+      return Response.json(
+        { error: 'Trop de requêtes. Réessayez plus tard.' },
+        { status: 429, headers: { 'Retry-After': (rateLimit.resetInSeconds || 60).toString() } }
+      );
+    }
+
     const session = await getServerSession(authOptions);
 
     if (!session) {
@@ -42,29 +55,46 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
+    // Validate input with Zod
+    const validation = employeeSchema.safeParse(body);
+    if (!validation.success) {
+      return Response.json(
+        { error: 'Validation failed', details: validation.error.issues },
+        { status: 422 }
+      );
+    }
+
+    // Sanitize inputs
+    const sanitized = {
+      nom: sanitizeString(validation.data.nom, 100),
+      prenom: sanitizeString(validation.data.prenom, 100),
+      telephone: sanitizeTelephone(validation.data.telephone),
+      email: body.email ? sanitizeEmail(body.email) : undefined,
+    };
+
     const employee = await prisma.employee.create({
       data: {
-        nom: body.nom,
-        prenom: body.prenom,
-        telephone: body.telephone,
-        typeContrat: body.typeContrat,
-        dateEntree: new Date(body.dateEntree),
-        dateFin: body.dateFin ? new Date(body.dateFin) : null,
+        nom: sanitized.nom,
+        prenom: sanitized.prenom,
+        telephone: sanitized.telephone,
+        typeContrat: validation.data.typeContrat,
+        dateEntree: validation.data.dateEntree,
+        dateFin: validation.data.dateFin || null,
         statut: 'ACTIF',
-        roleId: parseInt(body.roleId),
+        roleId: body.roleId ? parseInt(body.roleId) : 1,
       },
       include: { role: true },
     });
 
     // Create user if email provided
     let userPassword = null;
-    if (body.email) {
+    if (sanitized.email) {
       userPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(userPassword, 10);
 
       await prisma.user.create({
         data: {
-          email: body.email,
+          email: sanitized.email,
           password: hashedPassword,
           employeeId: employee.id,
         },
@@ -73,20 +103,19 @@ export async function POST(request: Request) {
       // Send welcome email with credentials
       try {
         await sendWelcomeEmail({
-          email: body.email,
-          nom: body.nom,
-          prenom: body.prenom,
+          email: sanitized.email,
+          nom: sanitized.nom,
+          prenom: sanitized.prenom,
           password: userPassword,
         });
       } catch (emailError) {
         console.error('Email sending failed, but employee was created:', emailError);
-        // Don't fail the employee creation if email fails
       }
     }
 
     return Response.json({
       ...employee,
-      userPassword: userPassword, // Return the plain password only once
+      userPassword: userPassword,
     });
   } catch (error) {
     console.error('Error creating employee:', error);

@@ -1,6 +1,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { sanitizeTelephone, sanitizeString } from '@/lib/sanitize';
 import { notifyStatutCommande, notifyAnnulationConfirmee } from '@/lib/whatsapp-templates';
 import { sendEmail } from '@/lib/mailer';
 
@@ -11,6 +13,16 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Rate limiting
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`${ip}:/api/commandes/[id]`, 'normal');
+    if (!rateLimit.success) {
+      return Response.json(
+        { error: 'Trop de requêtes. Réessayez plus tard.' },
+        { status: 429, headers: { 'Retry-After': (rateLimit.resetInSeconds || 60).toString() } }
+      );
+    }
+
     const { id } = await params;
     const session = await getServerSession(authOptions);
 
@@ -38,8 +50,9 @@ export async function PUT(
     // Envoyer une notification si le statut a changé
     if (body.status && oldOrder?.status !== body.status && body.clientPhone) {
       try {
+        const safePhone = sanitizeTelephone(body.clientPhone);
         await notifyStatutCommande(
-          body.clientPhone,
+          safePhone,
           order.orderNumber || order.id,
           body.status
         );
@@ -62,6 +75,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Rate limiting
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`${ip}:/api/commandes/[id]/delete`, 'normal');
+    if (!rateLimit.success) {
+      return Response.json(
+        { error: 'Trop de requêtes. Réessayez plus tard.' },
+        { status: 429, headers: { 'Retry-After': (rateLimit.resetInSeconds || 60).toString() } }
+      );
+    }
+
     const { id } = await params;
     const session = await getServerSession(authOptions);
 
@@ -84,7 +107,8 @@ export async function DELETE(
     // Envoyer une notification d'annulation au client si le numéro est fourni
     if (order && body.clientPhone) {
       try {
-        await notifyAnnulationConfirmee(body.clientPhone, order.orderNumber || order.id);
+        const safePhone = sanitizeTelephone(body.clientPhone);
+        await notifyAnnulationConfirmee(safePhone, order.orderNumber || order.id);
       } catch (error) {
         console.error('Erreur lors de l\'envoi de la notification:', error);
       }

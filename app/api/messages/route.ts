@@ -1,6 +1,9 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { sanitizeString, sanitizeEmail, sanitizeTelephone } from '@/lib/sanitize';
+import { messageSchema } from '@/lib/validators';
 import { sendEmail } from '@/lib/mailer';
 
 
@@ -33,23 +36,44 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-
-    if (!body.senderName || !body.senderEmail || !body.subject || !body.content) {
+    // Rate limiting - normal tier for all users (public endpoint)
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`${ip}:/api/messages`, 'public');
+    if (!rateLimit.success) {
       return Response.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
+        { error: 'Trop de requêtes. Réessayez plus tard.' },
+        { status: 429, headers: { 'Retry-After': (rateLimit.resetInSeconds || 60).toString() } }
       );
     }
+
+    const body = await request.json();
+
+    // Validate input with Zod
+    const validation = messageSchema.safeParse(body);
+    if (!validation.success) {
+      return Response.json(
+        { error: 'Validation failed', details: validation.error.issues },
+        { status: 422 }
+      );
+    }
+
+    // Sanitize inputs
+    const sanitized = {
+      senderName: sanitizeString(validation.data.senderName, 100),
+      senderEmail: sanitizeEmail(validation.data.senderEmail),
+      senderPhone: validation.data.senderPhone ? sanitizeTelephone(validation.data.senderPhone) : null,
+      subject: sanitizeString(validation.data.subject, 200),
+      content: sanitizeString(validation.data.content, 5000),
+    };
 
     // Sauvegarder le message
     const message = await prisma.message.create({
       data: {
-        senderName: body.senderName,
-        senderEmail: body.senderEmail,
-        senderPhone: body.senderPhone || null,
-        subject: body.subject,
-        content: body.content,
+        senderName: sanitized.senderName,
+        senderEmail: sanitized.senderEmail,
+        senderPhone: sanitized.senderPhone,
+        subject: sanitized.subject,
+        content: sanitized.content,
       },
     });
 
@@ -58,14 +82,14 @@ export async function POST(request: Request) {
       const adminEmail = process.env.EMAIL_FROM || 'admin@kama-delices.com';
       await sendEmail(
         adminEmail,
-        `Nouveau message - ${body.subject}`,
+        `Nouveau message - ${sanitized.subject}`,
         `<p>Un nouveau message a été reçu:</p>
-         <p><strong>De:</strong> ${body.senderName} (${body.senderEmail})</p>
-         ${body.senderPhone ? `<p><strong>Téléphone:</strong> ${body.senderPhone}</p>` : ''}
-         <p><strong>Sujet:</strong> ${body.subject}</p>
+         <p><strong>De:</strong> ${sanitized.senderName} (${sanitized.senderEmail})</p>
+         ${sanitized.senderPhone ? `<p><strong>Téléphone:</strong> ${sanitized.senderPhone}</p>` : ''}
+         <p><strong>Sujet:</strong> ${sanitized.subject}</p>
          <p><strong>Message:</strong></p>
-         <p>${body.content.replace(/\n/g, '<br>')}</p>`,
-        `Nouveau message de ${body.senderName}\nSujet: ${body.subject}\n\n${body.content}`
+         <p>${sanitized.content.replace(/\n/g, '<br>')}</p>`,
+        `Nouveau message de ${sanitized.senderName}\nSujet: ${sanitized.subject}\n\n${sanitized.content}`
       );
     } catch (error) {
       console.error('Erreur lors de l\'envoi de l\'email:', error);

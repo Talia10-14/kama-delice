@@ -66,16 +66,36 @@ export const loginSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 
 export const commandeSchema = z.object({
-  montant: z
+  orderNumber: z.string().min(1, "Le numéro de commande est requis").max(100),
+  clientName: z.string().min(2, "Le nom du client est requis").max(100),
+  content: z.string().min(1, "Les détails sont requis").max(5000),
+  amount: z
     .number()
     .positive("Le montant doit être positif")
     .max(9999999, "Le montant dépasse la limite"),
-  motif: z.string().max(500, "Le motif doit contenir au maximum 500 caractères").optional(),
-  statut: z.enum(["CREEE", "CONFIRMEE", "PREPAREE", "EN_LIVRAISON", "LIVREE", "ANNULEE"]).optional(),
-  clientId: z.string().uuid("ID client invalide").optional(),
+  status: z.enum(["PENDING", "CONFIRMED", "PREPARING", "READY", "DELIVERED", "CANCELLED"]).optional(),
+  clientPhone: z.string().optional().refine((phone) => !phone || /^\+?[0-9\s\-()]{8,}$/.test(phone), "Numéro invalide"),
+  customOrder: z.boolean().optional(),
 });
 
 export type CommandeInput = z.infer<typeof commandeSchema>;
+
+export const messageSchema = z.object({
+  senderName: z.string().min(2, "Le nom est requis").max(100),
+  senderEmail: emailSchema,
+  senderPhone: z.string().optional().refine((phone) => !phone || /^\+?[0-9\s\-()]{8,}$/.test(phone), "Numéro invalide"),
+  subject: z.string().min(5, "Le sujet doit contenir au moins 5 caractères").max(200),
+  content: z.string().min(10, "Le message doit contenir au moins 10 caractères").max(5000),
+});
+
+export type MessageInput = z.infer<typeof messageSchema>;
+
+export const attendanceSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Le mot de passe est requis"),
+});
+
+export type AttendanceInput = z.infer<typeof attendanceSchema>;
 
 export const otpSchema = z.object({
   telephone: phoneSchema,
@@ -124,22 +144,6 @@ export const menuSchema = z.object({
 });
 
 export type MenuInput = z.infer<typeof menuSchema>;
-
-export const messageSchema = z.object({
-  senderName: nameSchema,
-  senderEmail: emailSchema,
-  senderPhone: phoneSchema.optional(),
-  subject: z
-    .string()
-    .min(5, "Le sujet doit contenir au moins 5 caractères")
-    .max(200, "Le sujet doit contenir au maximum 200 caractères"),
-  content: z
-    .string()
-    .min(10, "Le message doit contenir au moins 10 caractères")
-    .max(5000, "Le message doit contenir au maximum 5000 caractères"),
-});
-
-export type MessageInput = z.infer<typeof messageSchema>;
 
 // Helper function to validate and return friendly error messages
 export function validateData<T>(

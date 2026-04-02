@@ -1,14 +1,40 @@
 import { prisma } from '@/lib/prisma';
 import * as bcrypt from 'bcryptjs';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { sanitizeEmail } from '@/lib/sanitize';
+import { attendanceSchema } from '@/lib/validators';
 
 
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting - strict tier for authentication endpoint
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`${ip}:/api/attendance/pointage`, 'strict');
+    if (!rateLimit.success) {
+      return Response.json(
+        { error: 'Trop de tentatives. Réessayez plus tard.' },
+        { status: 429, headers: { 'Retry-After': (rateLimit.resetInSeconds || 60).toString() } }
+      );
+    }
+
     const body = await request.json();
 
+    // Validate input with Zod
+    const validation = attendanceSchema.safeParse(body);
+    if (!validation.success) {
+      return Response.json(
+        { error: 'Validation failed', details: validation.error.issues },
+        { status: 422 }
+      );
+    }
+
+    // Sanitize email
+    const email = validation.data.email;
+    const password = validation.data.password;
+
     const user = await prisma.user.findUnique({
-      where: { email: body.email },
+      where: { email },
       include: { employee: true },
     });
 
@@ -19,10 +45,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      body.password,
-      user.password
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return Response.json(
