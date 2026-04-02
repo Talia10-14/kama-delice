@@ -6,7 +6,7 @@ import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -20,6 +20,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -68,40 +69,48 @@ export function LoginForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-semibold text-gray-700 mb-2">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 text-gray-400" size={20} />
+                <Mail className="absolute left-4 top-4 text-gray-400" size={20} />
                 <input
                   type="email"
                   placeholder="admin@kama-delices.com"
                   {...register('email')}
-                  className="w-full pl-10 pr-4 py-2 border border-[#E5E7EB] rounded focus:outline-none focus:ring-2 focus:ring-[#E8690A]"
+                  className="w-full pl-12 pr-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-base font-semibold text-gray-700 mb-2">
                 Mot de passe
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 text-gray-400" size={20} />
+                <Lock className="absolute left-4 top-4 text-gray-400" size={20} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   {...register('password')}
-                  className="w-full pl-10 pr-4 py-2 border border-[#E5E7EB] rounded focus:outline-none focus:ring-2 focus:ring-[#E8690A]"
+                  className="w-full pl-12 pr-12 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition"
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
               )}
             </div>
 
