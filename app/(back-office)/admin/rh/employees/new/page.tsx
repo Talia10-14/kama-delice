@@ -3,6 +3,8 @@
 import { Header } from '@/components/Header';
 import { FormInput } from '@/components/FormInput';
 import { FormInputPhone } from '@/components/FormInputPhone';
+import { FormInputEmail } from '@/components/FormInputEmail';
+import { FormInputDate } from '@/components/FormInputDate';
 import { FormSelect } from '@/components/FormSelect';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -179,9 +181,9 @@ export default function NewEmployeePage() {
                   {...register('telephone')}
                 />
 
-                <FormInput
+                <FormInputEmail
                   label="Email"
-                  type="email"
+                  error={errors.email?.message}
                   {...register('email')}
                 />
               </div>
@@ -229,18 +231,16 @@ export default function NewEmployeePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <FormInput
+                <FormInputDate
                   label="Date d'entrée"
-                  type="date"
                   error={errors.dateEntree?.message}
                   required
                   {...register('dateEntree')}
                 />
 
                 {watchTypeContrat === 'STAGIAIRE' && (
-                  <FormInput
+                  <FormInputDate
                     label="Date de fin de stage"
-                    type="date"
                     error={errors.dateFin?.message}
                     required
                     {...register('dateFin')}

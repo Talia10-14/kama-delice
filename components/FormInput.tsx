@@ -16,21 +16,31 @@ export function FormInput({
   required,
   className,
   id,
-  type,
+  type = 'text',
   placeholder,
   ...props
 }: FormInputProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
   // Set default placeholder based on type if not provided
-  const defaultPlaceholder = {
+  const defaultPlaceholders: Record<string, string> = {
     email: 'utilisateur@exemple.com',
     tel: '+229 XX XX XX XX',
     text: '',
     number: '',
     date: '',
     password: '••••••••',
-  }[type || 'text'];
+    search: '',
+    url: '',
+    color: '',
+    file: '',
+    hidden: '',
+    range: '',
+    time: '',
+    'datetime-local': '',
+  };
+  
+  const defaultPlaceholder = defaultPlaceholders[type] || '';
 
   return (
     <div className="w-full">

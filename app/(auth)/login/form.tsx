@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { FormInput } from '@/components/FormInput';
+import { FormInputEmail } from '@/components/FormInputEmail';
 
 const loginSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -71,11 +72,8 @@ export function LoginForm() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
-            <FormInput
+            <FormInputEmail
               label="Email"
-              type="email"
-              placeholder="admin@kama-delices.com"
-              icon={<Mail size={20} />}
               error={errors.email?.message}
               required
               {...register('email')}
