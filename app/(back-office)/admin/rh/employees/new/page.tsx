@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { FormInput } from '@/components/FormInput';
+import { FormInputPhone } from '@/components/FormInputPhone';
 import { FormSelect } from '@/components/FormSelect';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -172,9 +173,9 @@ export default function NewEmployeePage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <FormInput
+                <FormInputPhone
                   label="Téléphone"
-                  type="tel"
+                  error={errors.telephone?.message}
                   {...register('telephone')}
                 />
 

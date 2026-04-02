@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { FormInput } from '@/components/FormInput';
+import { FormInputPhone } from '@/components/FormInputPhone';
 import { FormTextarea } from '@/components/FormTextarea';
 import { usePermission } from '@/hooks/usePermission';
 import { useState, useEffect } from 'react';
@@ -240,9 +241,8 @@ export default function ParametresPage() {
                 rows={3}
               />
 
-              <FormInput
-                label="Téléphone"
-                type="tel"
+              <FormInputPhone
+                label="Téléphone du restaurant"
                 value={restaurantData.telephone}
                 onChange={(e) =>
                   setRestaurantData({ ...restaurantData, telephone: e.target.value })

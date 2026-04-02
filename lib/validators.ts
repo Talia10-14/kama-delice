@@ -14,7 +14,7 @@ export const emailSchema = z
 
 export const phoneSchema = z
   .string()
-  .regex(PHONE_REGEX, "Numéro de téléphone invalide (ex: +229XXXXXXXX)");
+  .regex(PHONE_REGEX, "Le téléphone doit être au format: +229XXXXXXXX (ex: +22965432109)");
 
 export const passwordSchema = z
   .string()

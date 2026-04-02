@@ -16,9 +16,21 @@ export function FormInput({
   required,
   className,
   id,
+  type,
+  placeholder,
   ...props
 }: FormInputProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+
+  // Set default placeholder based on type if not provided
+  const defaultPlaceholder = {
+    email: 'utilisateur@exemple.com',
+    tel: '+229 XX XX XX XX',
+    text: '',
+    number: '',
+    date: '',
+    password: '••••••••',
+  }[type || 'text'];
 
   return (
     <div className="w-full">
@@ -39,6 +51,8 @@ export function FormInput({
         )}
         <input
           id={inputId}
+          type={type}
+          placeholder={placeholder || defaultPlaceholder}
           className={`w-full ${icon ? 'pl-10 sm:pl-12' : 'px-4'} pr-4 py-2 sm:py-3 text-base text-gray-900 placeholder-gray-500 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition-all duration-200 shadow-sm hover:shadow-md ${
             error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
           } ${className || ''}`}
