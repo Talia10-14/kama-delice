@@ -93,13 +93,16 @@ export default function NewEmployeePage() {
 
     try {
       setIsSubmitting(true);
+      const payload = data;
+      console.log('Submitting employee data:', payload);
+      
       const response = await fetch('/api/employees', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-csrf-token': csrfToken,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -118,7 +121,11 @@ export default function NewEmployeePage() {
           router.push('/admin/rh');
         }
       } else {
-        alert('Erreur lors de la création de l\'employé');
+        const errorData = await response.json();
+        const errorDetails = errorData.details 
+          ? errorData.details.map((d: any) => d.message).join(', ')
+          : errorData.error;
+        alert(`Erreur: ${errorDetails}`);
       }
     } catch (error) {
       console.error('Failed to create employee:', error);

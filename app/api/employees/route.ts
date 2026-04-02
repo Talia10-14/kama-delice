@@ -73,6 +73,7 @@ export async function POST(request: Request) {
     // Validate input with Zod
     const validation = employeeSchema.safeParse(body);
     if (!validation.success) {
+      console.error('Validation errors:', validation.error.issues);
       return Response.json(
         { error: 'Validation failed', details: validation.error.issues },
         { status: 422 }
@@ -145,15 +146,23 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error creating employee:', error);
     
-    // More detailed error logging for debugging
     if (error instanceof Error) {
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
     }
+
+    // Check for specific database errors
+    let statusCode = 500;
+    let errorMessage = 'Failed to create employee';
+    
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      statusCode = 409;
+      errorMessage = 'Email already exists';
+    }
     
     return Response.json(
-      { error: 'Failed to create employee' },
-      { status: 500 }
+      { error: errorMessage },
+      { status: statusCode }
     );
   }
 }

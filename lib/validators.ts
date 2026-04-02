@@ -35,20 +35,26 @@ export const nameSchema = z
 export const employeeSchema = z.object({
   nom: nameSchema,
   prenom: nameSchema,
-  telephone: phoneSchema.optional(),
-  email: emailSchema.optional(),
+  telephone: phoneSchema.optional().nullable(),
+  email: emailSchema.optional().nullable(),
   typeContrat: z.enum(["EMPLOYE", "STAGIAIRE", "PRESTATAIRE"]),
-  dateEntree: z.coerce.date().refine(
-    (date) => date <= new Date(),
-    "La date d'entrée ne peut pas être dans le futur"
-  ),
+  dateEntree: z
+    .string()
+    .min(1, "La date d'entrée est requise")
+    .transform((val) => new Date(val))
+    .refine(
+      (date) => !isNaN(date.getTime()) && date <= new Date(),
+      "La date d'entrée ne peut pas être dans le futur"
+    ),
   dateFin: z
-    .coerce.date()
+    .string()
     .optional()
+    .nullable()
+    .transform((val) => val ? new Date(val) : null)
     .refine(
       (date) => {
         if (!date) return true;
-        return date > new Date();
+        return !isNaN(date.getTime()) && date > new Date();
       },
       "La date de fin doit être dans le futur"
     ),
