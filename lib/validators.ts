@@ -35,8 +35,8 @@ export const nameSchema = z
 export const employeeSchema = z.object({
   nom: nameSchema,
   prenom: nameSchema,
-  telephone: phoneSchema,
-  email: emailSchema,
+  telephone: phoneSchema.optional(),
+  email: emailSchema.optional(),
   typeContrat: z.enum(["EMPLOYE", "STAGIAIRE", "PRESTATAIRE"]),
   dateEntree: z.coerce.date().refine(
     (date) => date <= new Date(),
@@ -53,10 +53,14 @@ export const employeeSchema = z.object({
       "La date de fin doit être dans le futur"
     ),
   statut: z.enum(["ACTIF", "INACTIF"]).optional(),
-  roleId: z.string()
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => !isNaN(val) && val > 0, "ID de rôle invalide")
-    .optional(),
+  roleId: z.union([
+    z.number().int().positive("ID de rôle invalide"),
+    z.string().transform((val) => {
+      const parsed = parseInt(val, 10);
+      if (isNaN(parsed) || parsed <= 0) throw new Error("ID de rôle invalide");
+      return parsed;
+    })
+  ]).optional(),
 });
 
 export type EmployeeInput = z.infer<typeof employeeSchema>;

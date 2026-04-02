@@ -40,6 +40,7 @@ export default function NewEmployeePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [credentials, setCredentials] = useState<CredentialsModalData | null>(null);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string>('');
 
   const {
     register,
@@ -57,7 +58,20 @@ export default function NewEmployeePage() {
 
   useEffect(() => {
     fetchRoles();
+    fetchCsrfToken();
   }, []);
+
+  const fetchCsrfToken = async () => {
+    try {
+      const response = await fetch('/api/csrf-token');
+      if (response.ok) {
+        const data = await response.json();
+        setCsrfToken(data.token);
+      }
+    } catch (error) {
+      console.error('Failed to fetch CSRF token:', error);
+    }
+  };
 
   const fetchRoles = async () => {
     try {
@@ -72,15 +86,20 @@ export default function NewEmployeePage() {
   };
 
   const onSubmit = async (data: EmployeeFormData) => {
+    if (!csrfToken) {
+      alert('Token de sécurité manquant. Rechargez la page.');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       const response = await fetch('/api/employees', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          roleId: parseInt(data.roleId),
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': csrfToken,
+        },
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {

@@ -83,8 +83,8 @@ export async function POST(request: Request) {
     const sanitized = {
       nom: sanitizeString(validation.data.nom, 100),
       prenom: sanitizeString(validation.data.prenom, 100),
-      telephone: sanitizeTelephone(validation.data.telephone),
-      email: body.email ? (sanitizeEmail(body.email) || body.email) : undefined,
+      telephone: validation.data.telephone ? sanitizeTelephone(validation.data.telephone) : null,
+      email: validation.data.email ? (sanitizeEmail(validation.data.email) || validation.data.email) : undefined,
     };
 
     const employee = await prisma.employee.create({
