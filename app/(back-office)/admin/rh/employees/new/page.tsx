@@ -37,7 +37,6 @@ interface CredentialsModalData {
 export default function NewEmployeePage() {
   const router = useRouter();
   const [roles, setRoles] = useState<Role[]>([]);
-  const [typeContrat, setTypeContrat] = useState<string>('EMPLOYE');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [credentials, setCredentials] = useState<CredentialsModalData | null>(null);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
@@ -46,12 +45,15 @@ export default function NewEmployeePage() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
       typeContrat: 'EMPLOYE',
     },
   });
+
+  const watchTypeContrat = watch('typeContrat');
 
   useEffect(() => {
     fetchRoles();
@@ -164,21 +166,40 @@ export default function NewEmployeePage() {
                 Contrat
               </h3>
 
-              <FormSelect
-                label="Type de contrat"
-                error={errors.typeContrat?.message}
-                required
-                {...register('typeContrat')}
-                onChange={(e) => {
-                  setTypeContrat(e.target.value);
-                  register('typeContrat').onChange?.(e);
-                }}
-              >
-                <option value="">Sélectionner un type</option>
-                <option value="EMPLOYE">Employé</option>
-                <option value="STAGIAIRE">Stagiaire</option>
-                <option value="PRESTATAIRE">Prestataire</option>
-              </FormSelect>
+<div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Type de contrat
+                  <span className="text-red-600 ml-1">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    {...register('typeContrat')}
+                    className="w-full px-4 pr-10 py-2 sm:py-3 text-base text-gray-900 bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#E8690A] focus:ring-[#E8690A]/20 transition-all duration-200 shadow-sm hover:shadow-md appearance-none cursor-pointer"
+                  >
+                    <option value="EMPLOYE">Employé</option>
+                    <option value="STAGIAIRE">Stagiaire</option>
+                    <option value="PRESTATAIRE">Prestataire</option>
+                  </select>
+                  <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none flex items-center">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                {errors.typeContrat && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">{errors.typeContrat.message}</p>
+                )}
+              </div>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <FormInput
@@ -189,7 +210,7 @@ export default function NewEmployeePage() {
                   {...register('dateEntree')}
                 />
 
-                {typeContrat === 'STAGIAIRE' && (
+                {watchTypeContrat === 'STAGIAIRE' && (
                   <FormInput
                     label="Date de fin de stage"
                     type="date"
