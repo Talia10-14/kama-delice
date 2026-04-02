@@ -32,6 +32,24 @@ export const nameSchema = z
 
 // Entity schemas
 
+// Employee form schema (for form submission - before transformations)
+export const employeeFormSchema = z.object({
+  nom: nameSchema,
+  prenom: nameSchema,
+  telephone: phoneSchema.optional().nullable(),
+  email: emailSchema.optional().nullable(),
+  typeContrat: z.enum(["EMPLOYE", "STAGIAIRE", "PRESTATAIRE"]),
+  dateEntree: z.string().min(1, "La date d'entrée est requise"),
+  dateFin: z.string().optional().nullable(),
+  statut: z.enum(["ACTIF", "INACTIF"]).optional(),
+  roleId: z.union([
+    z.number().int().positive("Le rôle est requis"),
+    z.string().min(1, "Le rôle est requis")
+  ]),
+});
+
+export type EmployeeFormData = z.infer<typeof employeeFormSchema>;
+
 export const employeeSchema = z.object({
   nom: nameSchema,
   prenom: nameSchema,
@@ -60,13 +78,13 @@ export const employeeSchema = z.object({
     ),
   statut: z.enum(["ACTIF", "INACTIF"]).optional(),
   roleId: z.union([
-    z.number().int().positive("ID de rôle invalide"),
-    z.string().transform((val) => {
+    z.number().int().positive("Le rôle est requis"),
+    z.string().min(1, "Le rôle est requis").transform((val) => {
       const parsed = parseInt(val, 10);
-      if (isNaN(parsed) || parsed <= 0) throw new Error("ID de rôle invalide");
+      if (isNaN(parsed) || parsed <= 0) throw new Error("Le rôle est requis");
       return parsed;
     })
-  ]).optional(),
+  ]),
 });
 
 export type EmployeeInput = z.infer<typeof employeeSchema>;

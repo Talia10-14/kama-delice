@@ -10,20 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-const employeeSchema = z.object({
-  nom: z.string().min(1, 'Le nom est requis'),
-  prenom: z.string().min(1, 'Le prénom est requis'),
-  telephone: z.string().optional(),
-  email: z.string().email('Email invalide').optional(),
-  typeContrat: z.enum(['EMPLOYE', 'STAGIAIRE', 'PRESTATAIRE']),
-  dateEntree: z.string().min(1, 'La date d\'entrée est requise'),
-  dateFin: z.string().optional(),
-  roleId: z.string().min(1, 'Le rôle est requis'),
-});
-
-type EmployeeFormData = z.infer<typeof employeeSchema>;
+import { employeeFormSchema, employeeSchema, type EmployeeFormData } from '@/lib/validators';
 
 interface Role {
   id: number;
@@ -51,7 +38,7 @@ export default function NewEmployeePage() {
     formState: { errors, isValid },
     watch,
   } = useForm<EmployeeFormData>({
-    resolver: zodResolver(employeeSchema),
+    resolver: zodResolver(employeeFormSchema),
     mode: 'onBlur',
     defaultValues: {
       typeContrat: 'EMPLOYE',
