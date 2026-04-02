@@ -6,17 +6,43 @@ import * as bcrypt from 'bcryptjs';
  * POST /api/admin/init-db
  * Initialize database with seed data (admin user + menus)
  * DANGER: Only use once on fresh database
- * Requires secret header for security
+ * Requires secret via header (x-init-secret) or body (secret)
  */
 export async function POST(request: NextRequest) {
   try {
-    // Security: Check for secret header
-    const secret = request.headers.get('x-init-secret');
+    // Get secret from header OR body
+    let secret = request.headers.get('x-init-secret');
+    
+    if (!secret) {
+      const body = await request.json().catch(() => ({}));
+      secret = body.secret;
+    }
+
     const initSecret = process.env.INIT_SECRET;
 
-    if (!initSecret || secret !== initSecret) {
+    console.log('🔐 Init DB called');
+    console.log('INIT_SECRET exists:', !!initSecret);
+    console.log('Secret provided:', !!secret);
+    console.log('Secret match:', secret === initSecret);
+
+    if (!initSecret) {
+      console.error('❌ INIT_SECRET not configured on server');
       return NextResponse.json(
-        { error: 'Unauthorized - Missing or invalid secret' },
+        { 
+          error: 'INIT_SECRET not configured', 
+          debug: 'Server environment variable missing'
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!secret || secret !== initSecret) {
+      console.error('❌ Secret mismatch or missing');
+      return NextResponse.json(
+        { 
+          error: 'Unauthorized - Missing or invalid secret',
+          debug: `Provided: ${secret ? 'yes' : 'no'}, Match: ${secret === initSecret}`
+        },
         { status: 401 }
       );
     }
@@ -234,4 +260,34 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * GET /api/admin/init-db?secret=<SECRET>
+ * Alternative endpoint accessible via browser for testing
+ */
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const secret = searchParams.get('secret');
+
+  if (!secret) {
+    return NextResponse.json(
+      { 
+        error: 'Missing secret parameter',
+        usage: '/api/admin/init-db?secret=YOUR_SECRET_HERE'
+      },
+      { status: 400 }
+    );
+  }
+
+  // Reuse POST logic by calling it
+  const postRequest = new NextRequest(request.url.replace('?secret=', ''), {
+    method: 'POST',
+    headers: {
+      ...request.headers,
+      'x-init-secret': secret,
+    },
+  });
+
+  return POST(postRequest);
 }
