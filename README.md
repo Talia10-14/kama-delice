@@ -1,4 +1,4 @@
-# Karma — Kama-Délices
+# Kama — Kama-Délices
 
 Système de gestion complet pour Kama-Délices (restaurant/catering). Application composée d'un backend Express et d'un frontend Next.js.
 
@@ -28,7 +28,7 @@ Système de gestion complet pour Kama-Délices (restaurant/catering). Applicatio
 ```bash
 # Cloner le repo
 git clone [url]
-cd karma
+cd kama
 
 # Installer toutes les dépendances
 npm run install:all
@@ -166,7 +166,7 @@ DELETE /api/employees/:id           - Supprimer un employé
 ## 🌳 Structure des répertoires
 
 ```
-karma/
+kama/
 ├── backend/
 │   ├── src/
 │   │   ├── config/          # Configuration (DB, JWT, CORS)
@@ -235,7 +235,7 @@ karma/
 ```
 NODE_ENV=development
 PORT=4000
-DATABASE_URL=postgresql://user:pass@localhost:5432/karma
+DATABASE_URL=postgresql://user:pass@localhost:5432/kama
 JWT_SECRET=your_secret_key
 ENCRYPTION_KEY=your_32_char_key
 TWILIO_ACCOUNT_SID=...
