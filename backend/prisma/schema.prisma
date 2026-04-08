@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Utilisateur
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  status    String   @default("active") // active, inactive
+  
+  // Permissions et accès
+  roleId    String?
+  role      Role?    @relation(fields: [roleId], references: [id])
+  
+  // Permissions individuelles
+  employeePermissions EmployeePermission[]
+  grantedPermissions  EmployeePermission[] @relation("PermissionGrantedBy")
+  
+  // Commandes
+  commandes Commande[] @relation("ClientCommandes")
+  
+  // Pointage
+  attendances Attendance[]
+  
+  // Notifications
+  notifications Notification[]
+  
+  // Messages envoyés et reçus
+  messagesSent      Message[] @relation("MessageSender")
+  messagesReceived  Message[] @relation("MessageRecipient")
+  
+  // Account lock
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Rôle
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  codeName    String   @unique
+  description String?
+  
+  // Relations
+  permissions Permission[]
+  users       User[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Permission
+model Permission {
+  id       String @id @default(cuid())
+  name     String
+  codeName String @unique
+  description String?
+  
+  // Relations
+  roles                   Role[]
+  employeePermissions     EmployeePermission[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Permission individuelle pour un employé
+model EmployeePermission {
+  id           String     @id @default(cuid())
+  employeeId   String
+  permissionId String
+  type         PermissionType  // GRANT ou REVOKE
+  addedById    String
+  reason       String?
+  createdAt    DateTime   @default(now())
+
+  employee     User       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  addedBy      User       @relation("PermissionGrantedBy", fields: [addedById], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, permissionId, type])
+}
+
+// Type de permission individuelle
+enum PermissionType {
+  GRANT
+  REVOKE
+}
+
+// Menu
+model Menu {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  image       String?
+  status      String   @default("active")
+  
+  // Relations
+  commandeItems CommandeItem[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Commande
+model Commande {
+  id         String   @id @default(cuid())
+  clientId   String?
+  totalPrice Float
+  status     String   @default("pending") // pending, confirmed, preparing, ready, delivered, cancelled
+  notes      String?
+  
+  // Relations
+  client     User?         @relation("ClientCommandes", fields: [clientId], references: [id], onDelete: SetNull)
+  items      CommandeItem[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Ligne de commande
+model CommandeItem {
+  id         String   @id @default(cuid())
+  commandeId String
+  menuId     String
+  quantity   Int
+  price      Float
+  
+  // Relations
+  commande   Commande @relation(fields: [commandeId], references: [id], onDelete: Cascade)
+  menu       Menu     @relation(fields: [menuId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Pointage
+model Attendance {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime
+  checkIn   DateTime
+  checkOut  DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Message
+model Message {
+  id        String   @id @default(cuid())
+  fromId    String
+  toId      String
+  content   String
+  subject   String?
+  status    String   @default("sent")
+  
+  // Relations
+  from      User     @relation("MessageSender", fields: [fromId], references: [id], onDelete: Cascade)
+  to        User     @relation("MessageRecipient", fields: [toId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Notification
+model Notification {
+  id      String  @id @default(cuid())
+  userId  String
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title   String
+  message String
+  read    Boolean @default(false)
+  type    String? // info, warning, error, success
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

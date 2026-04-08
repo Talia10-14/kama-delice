@@ -1,0 +1,3 @@
+# Please keep the migration.lock file for each environment.
+# More information: https://migrate.readthedocs.io/en/latest/getting-started.html#initialization
+provider = "postgresql"
