@@ -32,6 +32,7 @@ import { rateLimiter } from './middlewares/rateLimiter.js';
 
 // Initialiser Express
 const app: Express = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 4000;
 
 // ===== SÉCURITÉ =====
