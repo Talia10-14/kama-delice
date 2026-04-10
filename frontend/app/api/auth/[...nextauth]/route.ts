@@ -131,6 +131,7 @@ export const authOptions: NextAuthOptions = {
   jwt: {
     maxAge: 7 * 24 * 60 * 60, // 7 jours (matche avec JWT_REFRESH_EXPIRES_IN)
   },
+  secret: process.env.NEXTAUTH_SECRET || 'dev-secret-change-in-production',
 };
 
 const handler = NextAuth(authOptions);
