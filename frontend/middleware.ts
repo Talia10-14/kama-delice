@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (
+if (pathname === "/pointage" || pathname === "/login" || pathname === "/" || pathname === "/api/debug") {  if (
     pathname === "/api/admin/init-db" ||
     pathname === "/api/admin/debug-env" ||
     pathname === "/api/admin/migrate-db"
