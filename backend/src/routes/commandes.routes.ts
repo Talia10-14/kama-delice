@@ -3,8 +3,8 @@
  */
 
 import { Router } from 'express';
-import { listCommandes, getCommande, createCommande, updateCommande, deleteCommande } from '../controllers/commandes.controller';
-import { authMiddleware } from '../middlewares/auth';
+import { listCommandes, getCommande, createCommande, updateCommande, deleteCommande } from '../controllers/commandes.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 router.use(authMiddleware);

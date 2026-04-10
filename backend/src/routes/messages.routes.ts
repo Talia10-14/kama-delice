@@ -3,8 +3,8 @@
  */
 
 import { Router } from 'express';
-import { listMessages, getMessage, createMessage, updateMessage, deleteMessage } from '../controllers/messages.controller';
-import { authMiddleware } from '../middlewares/auth';
+import { listMessages, getMessage, createMessage, updateMessage, deleteMessage } from '../controllers/messages.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 router.use(authMiddleware);

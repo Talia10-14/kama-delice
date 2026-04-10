@@ -3,8 +3,8 @@
  */
 
 import { Router } from 'express';
-import { listFinances, getFinance, createFinance, updateFinance, deleteFinance } from '../controllers/finances.controller';
-import { authMiddleware } from '../middlewares/auth';
+import { listFinances, getFinance, createFinance, updateFinance, deleteFinance } from '../controllers/finances.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 router.use(authMiddleware);

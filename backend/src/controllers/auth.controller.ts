@@ -4,18 +4,18 @@
 
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import prisma from '../config/prisma';
-import { successResponse, errorResponse } from '../utils/response';
-import { hashPassword, verifyPassword } from '../utils/password';
+import prisma from '../config/prisma.js';
+import { successResponse, errorResponse } from '../utils/response.js';
+import { hashPassword, verifyPassword } from '../utils/password.js';
 import {
   recordFailedLoginAttempt,
   resetFailedLoginAttempts,
   isAccountLocked,
-} from '../services/accountLock.service';
-import { getUserPermissions } from '../services/permission.service';
-import { jwtConfig } from '../config/jwt';
-import { logLoginAttempt, logSensitiveChange } from '../utils/security-logger';
-import { LoginInput, RegisterInput, RefreshTokenInput, ChangePasswordInput } from '../validators/auth.validator';
+} from '../services/accountLock.service.js';
+import { getUserPermissions } from '../services/permission.service.js';
+import { jwtConfig } from '../config/jwt.js';
+import { logLoginAttempt, logSensitiveChange } from '../utils/security-logger.js';
+import { LoginInput, RegisterInput, RefreshTokenInput, ChangePasswordInput } from '../validators/auth.validator.js';
 
 /**
  * Se connecter

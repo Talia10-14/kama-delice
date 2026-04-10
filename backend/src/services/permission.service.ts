@@ -2,8 +2,8 @@
  * Service de gestion des permissions
  */
 
-import prisma from '../config/prisma';
-import { securityLogger } from '../utils/security-logger';
+import prisma from '../config/prisma.js';
+import { securityLogger } from '../utils/security-logger.js';
 
 // Cache pour les permissions effectives (userId -> permissionCodes[])
 // Clé: userId, Valeur: { permissions: string[], expiresAt: number }

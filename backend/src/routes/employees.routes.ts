@@ -9,21 +9,21 @@ import {
   createEmployee,
   updateEmployee,
   deleteEmployee,
-} from '../controllers/employees.controller';
+} from '../controllers/employees.controller.js';
 import {
   getEmployeePermissions as getEmployeePermissionsCtrl,
   grantEmployeePermission as grantEmployeePermissionCtrl,
   revokeEmployeePermission as revokeEmployeePermissionCtrl,
   resetEmployeePermissions as resetEmployeePermissionsCtrl,
-} from '../controllers/permissions.controller';
-import { authMiddleware } from '../middlewares/auth';
-import { requirePermission, requireRole } from '../middlewares/checkPermission';
-import { validateBody } from '../middlewares/validateBody';
-import { createEmployeeSchema, updateEmployeeSchema } from '../validators/employee.validator';
+} from '../controllers/permissions.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
+import { requirePermission, requireRole } from '../middlewares/checkPermission.js';
+import { validateBody } from '../middlewares/validateBody.js';
+import { createEmployeeSchema, updateEmployeeSchema } from '../validators/employee.validator.js';
 import {
   grantPermissionSchema,
   revokePermissionSchema,
-} from '../validators/permission.validator';
+} from '../validators/permission.validator.js';
 
 const router = Router();
 

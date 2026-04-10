@@ -10,8 +10,8 @@ import {
   updateNotificationSettings,
   getRestaurantSettings,
   updateRestaurantSettings,
-} from '../controllers/settings.controller';
-import { authMiddleware } from '../middlewares/auth';
+} from '../controllers/settings.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 router.use(authMiddleware);

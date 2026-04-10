@@ -3,8 +3,8 @@
  */
 
 import { Router } from 'express';
-import { listAttendance, getAttendance, checkIn, checkOut } from '../controllers/attendance.controller';
-import { authMiddleware } from '../middlewares/auth';
+import { listAttendance, getAttendance, checkIn, checkOut } from '../controllers/attendance.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 router.use(authMiddleware);

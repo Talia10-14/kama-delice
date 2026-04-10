@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import prisma from '../config/prisma';
-import { successResponse, errorResponse } from '../utils/response';
-import { verifyPassword } from '../utils/password';
+import prisma from '../config/prisma.js';
+import { successResponse, errorResponse } from '../utils/response.js';
+import { verifyPassword } from '../utils/password.js';
 
 export async function listAttendance(req: Request, res: Response) {
   try {

@@ -4,8 +4,8 @@
  */
 
 import { Request, Response } from 'express';
-import prisma from '../config/prisma';
-import { successResponse, errorResponse } from '../utils/response';
+import prisma from '../config/prisma.js';
+import { successResponse, errorResponse } from '../utils/response.js';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
 
 // Cache simple en-mémoire (en production, utiliser Redis)

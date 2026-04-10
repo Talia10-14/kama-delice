@@ -9,9 +9,9 @@ import {
   createPermission,
   updatePermission,
   deletePermission,
-} from '../controllers/permissions.controller';
-import { authMiddleware } from '../middlewares/auth';
-import { requirePermission } from '../middlewares/checkPermission';
+} from '../controllers/permissions.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
+import { requirePermission } from '../middlewares/checkPermission.js';
 
 const router = Router();
 

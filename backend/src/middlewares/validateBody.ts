@@ -4,7 +4,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema, ZodError } from 'zod';
-import { errorResponse } from '../utils/response';
+import { errorResponse } from '../utils/response.js';
 
 /**
  * Valider le body avec un schéma Zod

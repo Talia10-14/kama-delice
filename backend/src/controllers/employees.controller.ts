@@ -3,10 +3,10 @@
  */
 
 import { Request, Response } from 'express';
-import prisma from '../config/prisma';
-import { successResponse, errorResponse } from '../utils/response';
-import { CreateEmployeeInput, UpdateEmployeeInput } from '../validators/employee.validator';
-import { hashPassword } from '../utils/password';
+import prisma from '../config/prisma.js';
+import { successResponse, errorResponse } from '../utils/response.js';
+import { CreateEmployeeInput, UpdateEmployeeInput } from '../validators/employee.validator.js';
+import { hashPassword } from '../utils/password.js';
 
 /**
  * Lister tous les employés

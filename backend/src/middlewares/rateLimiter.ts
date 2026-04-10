@@ -4,7 +4,7 @@
 
 import { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
-import { errorResponse } from '../utils/response';
+import { errorResponse } from '../utils/response.js';
 
 /**
  * Limiter basé sur le nombre de requêtes par minute

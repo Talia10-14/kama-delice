@@ -4,7 +4,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { errorResponse } from '../utils/response';
+import { errorResponse } from '../utils/response.js';
 
 declare global {
   namespace Express {

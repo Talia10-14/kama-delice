@@ -3,7 +3,7 @@
  */
 
 import { Request, Response } from 'express';
-import { successResponse, errorResponse } from '../utils/response';
+import { successResponse, errorResponse } from '../utils/response.js';
 
 /**
  * Vérifier la clé secrète du cron

@@ -11,24 +11,24 @@ import compression from 'compression';
 import cors from 'cors';
 
 // Importer les routes
-import authRoutes from './routes/auth.routes';
-import employeesRoutes from './routes/employees.routes';
-import rolesRoutes from './routes/roles.routes';
-import permissionsRoutes from './routes/permissions.routes';
-import attendanceRoutes from './routes/attendance.routes';
-import commandesRoutes from './routes/commandes.routes';
-import menusRoutes from './routes/menus.routes';
-import clientsRoutes from './routes/clients.routes';
-import financesRoutes from './routes/finances.routes';
-import messagesRoutes from './routes/messages.routes';
-import statsRoutes from './routes/stats.routes';
-import notificationsRoutes from './routes/notifications.routes';
-import cronRoutes from './routes/cron.routes';
-import settingsRoutes from './routes/settings.routes';
+import authRoutes from './routes/auth.routes.js';
+import employeesRoutes from './routes/employees.routes.js';
+import rolesRoutes from './routes/roles.routes.js';
+import permissionsRoutes from './routes/permissions.routes.js';
+import attendanceRoutes from './routes/attendance.routes.js';
+import commandesRoutes from './routes/commandes.routes.js';
+import menusRoutes from './routes/menus.routes.js';
+import clientsRoutes from './routes/clients.routes.js';
+import financesRoutes from './routes/finances.routes.js';
+import messagesRoutes from './routes/messages.routes.js';
+import statsRoutes from './routes/stats.routes.js';
+import notificationsRoutes from './routes/notifications.routes.js';
+import cronRoutes from './routes/cron.routes.js';
+import settingsRoutes from './routes/settings.routes.js';
 
 // Importer les middlewares
-import { securityLogger } from './middlewares/securityLogger';
-import { rateLimiter } from './middlewares/rateLimiter';
+import { securityLogger } from './middlewares/securityLogger.js';
+import { rateLimiter } from './middlewares/rateLimiter.js';
 
 // Initialiser Express
 const app: Express = express();

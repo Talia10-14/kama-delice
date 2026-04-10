@@ -3,7 +3,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { securityLogger as logger } from '../utils/security-logger';
+import { securityLogger as logger } from '../utils/security-logger.js';
 
 /**
  * Logger les requêtes entrantes pour la sécurité

@@ -10,8 +10,8 @@ import {
   getTopDishes,
   getOrdersByStatus,
   getDailyCmrcials,
-} from '../controllers/stats.controller';
-import { authMiddleware } from '../middlewares/auth';
+} from '../controllers/stats.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 router.use(authMiddleware);

@@ -3,9 +3,9 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { errorResponse } from '../utils/response';
-import { logAccessError } from '../utils/security-logger';
-import { getEffectivePermissions } from '../services/permission.service';
+import { errorResponse } from '../utils/response.js';
+import { logAccessError } from '../utils/security-logger.js';
+import { getEffectivePermissions } from '../services/permission.service.js';
 
 // Cache local pour les permissions récupérées pendant la requête pour éviter plusieurs appels
 // Clé: userId, Valeur: permissionCodes[]

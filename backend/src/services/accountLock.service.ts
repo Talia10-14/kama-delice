@@ -2,7 +2,7 @@
  * Service de verrouillage de compte
  */
 
-import prisma from '../config/prisma';
+import prisma from '../config/prisma.js';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MINUTES = 30; // 30 minutes

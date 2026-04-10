@@ -3,8 +3,8 @@
  */
 
 import { Router } from 'express';
-import { listClients, getClient, createClient, updateClient, deleteClient } from '../controllers/clients.controller';
-import { authMiddleware } from '../middlewares/auth';
+import { listClients, getClient, createClient, updateClient, deleteClient } from '../controllers/clients.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 router.use(authMiddleware);

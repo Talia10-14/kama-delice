@@ -8,7 +8,7 @@ import {
   weeklyReport,
   monthlyReport,
   traineeAlerts,
-} from '../controllers/cron.controller';
+} from '../controllers/cron.controller.js';
 
 const router = Router();
 

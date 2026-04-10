@@ -3,7 +3,7 @@
  */
 
 import { Request, Response } from 'express';
-import { successResponse } from '../utils/response';
+import { successResponse } from '../utils/response.js';
 
 export async function listMenus(_req: Request, res: Response) {
   res.json(successResponse([]));

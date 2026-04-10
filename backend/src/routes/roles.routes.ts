@@ -3,9 +3,9 @@
  */
 
 import { Router } from 'express';
-import { listRoles, getRole, createRole, updateRole, deleteRole } from '../controllers/roles.controller';
-import { authMiddleware } from '../middlewares/auth';
-import { requirePermission } from '../middlewares/checkPermission';
+import { listRoles, getRole, createRole, updateRole, deleteRole } from '../controllers/roles.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
+import { requirePermission } from '../middlewares/checkPermission.js';
 
 const router = Router();
 router.use(authMiddleware);

@@ -2,7 +2,7 @@
  * Configuration base de données
  */
 
-import prisma from './prisma';
+import prisma from './prisma.js';
 
 export { prisma };
 

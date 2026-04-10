@@ -9,8 +9,8 @@ import {
   markAsRead,
   deleteNotification,
   streamNotifications,
-} from '../controllers/notifications.controller';
-import { authMiddleware } from '../middlewares/auth';
+} from '../controllers/notifications.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 

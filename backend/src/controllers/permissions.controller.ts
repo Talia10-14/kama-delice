@@ -3,16 +3,16 @@
  */
 
 import { Request, Response } from 'express';
-import prisma from '../config/prisma';
-import { successResponse, errorResponse } from '../utils/response';
+import prisma from '../config/prisma.js';
+import { successResponse, errorResponse } from '../utils/response.js';
 import {
   getPermissionsDetail,
   grantPermission,
   revokePermission,
   resetPermissions,
   invalidateEmployeePermissionsCache,
-} from '../services/permission.service';
-import { clearRequestPermissionsCache } from '../middlewares/checkPermission';
+} from '../services/permission.service.js';
+import { clearRequestPermissionsCache } from '../middlewares/checkPermission.js';
 
 /**
  * GET /api/permissions

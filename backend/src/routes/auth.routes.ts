@@ -3,12 +3,12 @@
  */
 
 import { Router } from 'express';
-import { login, register, refreshToken, logout, getProfile, changePassword } from '../controllers/auth.controller';
-import { validateBody } from '../middlewares/validateBody';
-import { authMiddleware } from '../middlewares/auth';
-import { sanitizeMiddleware } from '../middlewares/sanitize';
-import { strictLimiter } from '../middlewares/rateLimiter';
-import { loginSchema, registerSchema, refreshTokenSchema, changePasswordSchema } from '../validators/auth.validator';
+import { login, register, refreshToken, logout, getProfile, changePassword } from '../controllers/auth.controller.js';
+import { validateBody } from '../middlewares/validateBody.js';
+import { authMiddleware } from '../middlewares/auth.js';
+import { sanitizeMiddleware } from '../middlewares/sanitize.js';
+import { strictLimiter } from '../middlewares/rateLimiter.js';
+import { loginSchema, registerSchema, refreshTokenSchema, changePasswordSchema } from '../validators/auth.validator.js';
 
 const router = Router();
 

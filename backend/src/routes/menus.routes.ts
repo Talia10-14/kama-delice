@@ -3,8 +3,8 @@
  */
 
 import { Router } from 'express';
-import { listMenus, getMenu, createMenu, updateMenu, deleteMenu } from '../controllers/menus.controller';
-import { authMiddleware } from '../middlewares/auth';
+import { listMenus, getMenu, createMenu, updateMenu, deleteMenu } from '../controllers/menus.controller.js';
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = Router();
 router.use(authMiddleware);
