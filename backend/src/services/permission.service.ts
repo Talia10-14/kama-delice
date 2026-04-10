@@ -62,7 +62,7 @@ export async function getEffectivePermissions(employeeId: string): Promise<strin
     }
 
     // 2. Récupérer les permissions du rôle
-    const rolePermissions = new Set(
+    const rolePermissions: Set<string> = new Set(
       user.role?.permissions.map((p: any) => p.codeName) || []
     );
 
