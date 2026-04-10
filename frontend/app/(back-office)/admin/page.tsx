@@ -2,8 +2,9 @@
 
 import { Header } from '@/components/Header';
 import { usePermission } from '@/hooks/usePermission';
-import { apiClient } from '@/lib/api-client';
-import { useEffect, useState } from 'react';
+import { useApi } from '@/hooks/useApi';
+import { useEffect, useState, lazy, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import {
   ShoppingCart,
   DollarSign,
@@ -18,31 +19,28 @@ interface DashboardMetrics {
   presentEmployees: number;
 }
 
+// Lazy load les graphiques lourds
+const ChartComponent = dynamic(() => import('@/components/DashboardCharts'), {
+  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>,
+  ssr: false,
+});
+
 export default function DashboardPage() {
   const { hasPermission } = usePermission();
-  const [metrics, setMetrics] = useState<DashboardMetrics>({
+  const { data: dashboardData, isLoading } = useApi<{
+    metrics: DashboardMetrics;
+    alerts: any[];
+  }>('/stats/dashboard', {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000, // Cache 1 min
+  });
+
+  const metrics = dashboardData?.metrics || {
     ordersCount: 0,
     totalRevenue: 0,
     presentEmployees: 0,
-  });
-  const [stagiaireAlerts, setStagiaireAlerts] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      try {
-        const data = await apiClient.get<any>('/dashboard');
-        setMetrics(data.metrics);
-        setStagiaireAlerts(data.alerts);
-      } catch (error) {
-        console.error('Failed to fetch metrics:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMetrics();
-  }, []);
+  };
+  const stagiaireAlerts = dashboardData?.alerts || [];
 
   const Widget = ({
     title,

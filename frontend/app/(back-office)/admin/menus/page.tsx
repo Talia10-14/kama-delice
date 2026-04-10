@@ -6,8 +6,10 @@ import { FormSelect } from '@/components/FormSelect';
 import { FormTextarea } from '@/components/FormTextarea';
 import { usePermission } from '@/hooks/usePermission';
 import { apiClient } from '@/lib/api-client';
+import { useApi } from '@/hooks/useApi';
 import { useEffect, useState } from 'react';
 import { Plus, ToggleLeft, X } from 'lucide-react';
+import Image from 'next/image';
 
 interface Menu {
   id: string;
@@ -114,12 +116,14 @@ export default function MenusPage() {
           {menus.map((menu) => (
             <div key={menu.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
               {/* Photo */}
-              <div className="w-full h-32 bg-[#F9FAFB] flex items-center justify-center">
+              <div className="w-full h-32 bg-[#F9FAFB] flex items-center justify-center relative">
                 {menu.photoUrl ? (
-                  <img
+                  <Image
                     src={menu.photoUrl}
                     alt={menu.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 ) : (
                   <div className="text-[#9CA3AF]">Pas de photo</div>

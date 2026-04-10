@@ -48,6 +48,12 @@ model User {
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // ===== INDEX POUR OPTIMISER LES REQUÊTES =====
+  @@index([email])
+  @@index([status])
+  @@index([roleId])
+  @@index([createdAt])
 }
 
 // Rôle
@@ -133,6 +139,11 @@ model Commande {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // ===== INDEX =====
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 // Ligne de commande
@@ -162,6 +173,11 @@ model Attendance {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // ===== INDEX =====
+  @@index([userId])
+  @@index([date])
+  @@index([userId, date]) // Pour recherches par user et date ensemble
 }
 
 // Message
@@ -179,6 +195,11 @@ model Message {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // ===== INDEX =====
+  @@index([fromId])
+  @@index([toId])
+  @@index([status])
 }
 
 // Notification
@@ -193,4 +214,9 @@ model Notification {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // ===== INDEX =====
+  @@index([userId])
+  @@index([read])
+  @@index([userId, read]) // Pour notifs non-lues d'un user
 }
