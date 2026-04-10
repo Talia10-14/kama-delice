@@ -1,6 +1,14 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
-
+if (["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) {
+  // Exclure les routes NextAuth de la validation d'origine
+  if (!pathname.startsWith("/api/auth") && !validateRequestOrigin(request)) {
+    return NextResponse.json(
+      { error: "Requête non autorisée" },
+      { status: 403 }
+    );
+  }
+}
 // Map des routes vers les permissions requises
 // Si null = page accessible à tous les authentifiés
 // Si string = nécessite cette permission
