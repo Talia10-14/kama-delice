@@ -3,6 +3,7 @@
 import { Header } from '@/components/Header';
 import { FormSelect } from '@/components/FormSelect';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Plus, AlertTriangle, Edit2, Lock } from 'lucide-react';
@@ -47,11 +48,8 @@ export default function RHPage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch('/api/employees');
-      if (response.ok) {
-        const data = await response.json();
-        setEmployees(data);
-      }
+      const data = await apiClient.get<Employee[]>('/employees');
+      setEmployees(data);
     } catch (error) {
       console.error('Failed to fetch employees:', error);
     } finally {

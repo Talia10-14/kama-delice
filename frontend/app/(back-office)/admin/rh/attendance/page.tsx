@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { FormSelect } from '@/components/FormSelect';
 import { FormInput } from '@/components/FormInput';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import { Download, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -37,17 +38,12 @@ export default function AttendancePage() {
 
   const fetchData = async () => {
     try {
-      const attendanceResponse = await fetch('/api/attendance');
-      const employeesResponse = await fetch('/api/employees');
-
-      if (attendanceResponse.ok) {
-        const data = await attendanceResponse.json();
-        setAttendance(data);
-      }
-      if (employeesResponse.ok) {
-        const data = await employeesResponse.json();
-        setEmployees(data);
-      }
+      const [attendanceData, employeesData] = await Promise.all([
+        apiClient.get<AttendanceRecord[]>('/attendance'),
+        apiClient.get<any[]>('/employees'),
+      ]);
+      setAttendance(attendanceData);
+      setEmployees(employeesData);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {

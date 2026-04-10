@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Clock } from 'lucide-react';
 import { FormInput } from '@/components/FormInput';
+import { apiClient } from '@/lib/api-client';
 
 export default function PointagePage() {
   const [time, setTime] = useState<string>('');
@@ -33,30 +34,18 @@ export default function PointagePage() {
     }
 
     try {
-      const response = await fetch('/api/attendance/pointage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await apiClient.post<any>('/attendance/pointage', { email, password });
+      setMessage(data.message || 'Pointage enregistré');
+      setMessageType('success');
+      setEmail('');
+      setPassword('');
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage(data.message);
-        setMessageType('success');
-        setEmail('');
-        setPassword('');
-
-        setTimeout(() => {
-          setMessage('');
-          setMessageType('');
-        }, 3000);
-      } else {
-        setMessage(data.error || 'Erreur lors du pointage');
-        setMessageType('error');
-      }
+      setTimeout(() => {
+        setMessage('');
+        setMessageType('');
+      }, 3000);
     } catch (error) {
-      setMessage('Une erreur est survenue');
+      setMessage(error instanceof Error ? error.message : 'Une erreur est survenue');
       setMessageType('error');
     }
   };

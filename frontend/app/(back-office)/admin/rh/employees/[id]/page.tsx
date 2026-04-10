@@ -3,6 +3,7 @@
 import { Header } from '@/components/Header';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,18 +48,10 @@ export default function EmployeeDetailPage() {
 
   const fetchEmployee = async () => {
     try {
-      const response = await fetch(`/api/employees/${params.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setEmployee(data);
-        const attendanceResponse = await fetch(
-          `/api/attendance?employeeId=${params.id}`
-        );
-        if (attendanceResponse.ok) {
-          const attendanceData = await attendanceResponse.json();
-          setAttendance(attendanceData);
-        }
-      }
+      const data = await apiClient.get<Employee>(`/employees/${params.id}`);
+      setEmployee(data);
+      const attendanceData = await apiClient.get<Attendance[]>(`/attendance`, { params: { employeeId: params.id } });
+      setAttendance(attendanceData);
     } catch (error) {
       console.error('Failed to fetch employee:', error);
     } finally {

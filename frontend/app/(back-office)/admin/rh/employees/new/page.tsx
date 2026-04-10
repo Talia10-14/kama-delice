@@ -54,11 +54,8 @@ export default function NewEmployeePage() {
 
   const fetchCsrfToken = async () => {
     try {
-      const response = await fetch('/api/csrf-token');
-      if (response.ok) {
-        const data = await response.json();
-        setCsrfToken(data.token);
-      }
+      const data = await apiClient.get<any>('/csrf-token');
+      setCsrfToken(data.token);
     } catch (error) {
       console.error('Failed to fetch CSRF token:', error);
     }
@@ -66,61 +63,33 @@ export default function NewEmployeePage() {
 
   const fetchRoles = async () => {
     try {
-      const response = await fetch('/api/roles');
-      if (response.ok) {
-        const data = await response.json();
-        setRoles(data);
-      }
+      const data = await apiClient.get<any[]>('/roles');
+      setRoles(data);
     } catch (error) {
       console.error('Failed to fetch roles:', error);
     }
   };
 
   const onSubmit = async (data: EmployeeFormData) => {
-    if (!csrfToken) {
-      alert('Token de sécurité manquant. Rechargez la page.');
-      return;
-    }
-
     try {
       setIsSubmitting(true);
-      const payload = data;
-      console.log('Submitting employee data:', payload);
+      const result = await apiClient.post<any>('/employees', data);
       
-      const response = await fetch('/api/employees', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-csrf-token': csrfToken,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        
-        // Si un email a été fourni et un mot de passe généré
-        if (data.email && result.userPassword) {
-          setCredentials({
-            email: data.email,
-            password: result.userPassword,
-            nom: data.nom,
-            prenom: data.prenom,
-          });
-        } else {
-          // Sinon rediriger directement
-          router.push('/admin/rh');
-        }
+      // Si un email a été fourni et un mot de passe généré
+      if (data.email && result.userPassword) {
+        setCredentials({
+          email: data.email,
+          password: result.userPassword,
+          nom: data.nom,
+          prenom: data.prenom,
+        });
       } else {
-        const errorData = await response.json();
-        const errorDetails = errorData.details 
-          ? errorData.details.map((d: any) => d.message).join(', ')
-          : errorData.error;
-        alert(`Erreur: ${errorDetails}`);
+        // Sinon rediriger directement
+        router.push('/admin/rh');
       }
     } catch (error) {
       console.error('Failed to create employee:', error);
-      alert('Une erreur est survenue');
+      alert(error instanceof Error ? error.message : 'Une erreur est survenue');
     } finally {
       setIsSubmitting(false);
     }

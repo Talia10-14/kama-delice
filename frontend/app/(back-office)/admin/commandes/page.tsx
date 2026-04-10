@@ -3,6 +3,7 @@
 import { Header } from '@/components/Header';
 import { FormSelect } from '@/components/FormSelect';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import { ChevronDown, Eye, X } from 'lucide-react';
 
@@ -64,11 +65,8 @@ export default function CommandesPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('/api/commandes');
-      if (response.ok) {
-        const data = await response.json();
-        setOrders(data);
-      }
+      const data = await apiClient.get<Order[]>('/commandes');
+      setOrders(data);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
     } finally {
@@ -85,18 +83,14 @@ export default function CommandesPage() {
     if (!selectedOrder || !amount) return;
 
     try {
-      const response = await fetch(`/api/commandes/${selectedOrder.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: parseFloat(amount), status: 'DELIVERED' }),
+      await apiClient.put(`/commandes/${selectedOrder.id}`, {
+        amount: parseFloat(amount),
+        status: 'DELIVERED',
       });
-
-      if (response.ok) {
-        setShowAmountModal(false);
-        setAmount('');
-        setSelectedOrder(null);
-        fetchOrders();
-      }
+      setShowAmountModal(false);
+      setAmount('');
+      setSelectedOrder(null);
+      fetchOrders();
     } catch (error) {
       console.error('Failed to validate order:', error);
     }

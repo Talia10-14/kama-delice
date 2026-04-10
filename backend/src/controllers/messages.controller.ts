@@ -1,26 +1,26 @@
 /**
- * Contrôleur de messages
+ * Contrôleur de messages (STUB)
  */
 
 import { Request, Response } from 'express';
 import { successResponse } from '../utils/response';
 
 export async function listMessages(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - listMessages' }));
+  res.json(successResponse([]));
 }
 
 export async function getMessage(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - getMessage' }));
+  res.json(successResponse({}));
 }
 
 export async function createMessage(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - createMessage' }));
+  res.json(successResponse({ id: 'new' }));
 }
 
 export async function updateMessage(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - updateMessage' }));
+  res.json(successResponse({}));
 }
 
 export async function deleteMessage(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - deleteMessage' }));
+  res.json(successResponse({ message: 'Supprimé' }));
 }

@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import {
   ShoppingCart,
@@ -30,12 +31,9 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await fetch('/api/dashboard', { cache: 'no-store' });
-        if (response.ok) {
-          const data = await response.json();
-          setMetrics(data.metrics);
-          setStagiaireAlerts(data.alerts);
-        }
+        const data = await apiClient.get<any>('/dashboard');
+        setMetrics(data.metrics);
+        setStagiaireAlerts(data.alerts);
       } catch (error) {
         console.error('Failed to fetch metrics:', error);
       } finally {

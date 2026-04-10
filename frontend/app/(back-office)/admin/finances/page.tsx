@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import {
@@ -55,32 +56,17 @@ export default function FinancesPage() {
 
     const fetchStats = async () => {
       try {
-        const [caRes, commandesRes, statutRes, platsRes] = await Promise.all([
-          fetch('/api/stats/ca-journalier?periode=30'),
-          fetch('/api/stats/commandes-par-jour'),
-          fetch('/api/stats/repartition-statuts'),
-          fetch('/api/stats/top-plats'),
+        const [caData, commandesData, statutData, platsData] = await Promise.all([
+          apiClient.get<any>('/stats/ca-journalier', { params: { periode: 30 } }),
+          apiClient.get<any>('/stats/commandes-par-jour'),
+          apiClient.get<any>('/stats/repartition-statuts'),
+          apiClient.get<any>('/stats/top-plats'),
         ]);
 
-        if (caRes.ok) {
-          const caDataRes = await caRes.json();
-          setCaData(caDataRes.data || []);
-        }
-
-        if (commandesRes.ok) {
-          const commandesDataRes = await commandesRes.json();
-          setCommandesData(commandesDataRes.data || []);
-        }
-
-        if (statutRes.ok) {
-          const statutDataRes = await statutRes.json();
-          setStatutData(statutDataRes.data || []);
-        }
-
-        if (platsRes.ok) {
-          const platsDataRes = await platsRes.json();
-          setPlatsData(platsDataRes.data || []);
-        }
+        setCaData(caData || []);
+        setCommandesData(commandesData || []);
+        setStatutData(statutData || []);
+        setPlatsData(platsData || []);
       } catch (error) {
         console.error('Erreur lors du chargement des statistiques:', error);
       } finally {

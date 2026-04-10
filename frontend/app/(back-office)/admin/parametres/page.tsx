@@ -5,6 +5,7 @@ import { FormInput } from '@/components/FormInput';
 import { FormInputPhone } from '@/components/FormInputPhone';
 import { FormTextarea } from '@/components/FormTextarea';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import { useState, useEffect } from 'react';
 import { Save, Lock, Mail, Bell } from 'lucide-react';
 import Link from 'next/link';
@@ -48,12 +49,9 @@ export default function ParametresPage() {
     // Charger les paramètres existants
     const loadSettings = async () => {
       try {
-        const res = await fetch('/api/settings');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.restaurant) setRestaurantData(data.restaurant);
-          if (data.notifications) setNotificationsSettings(data.notifications);
-        }
+        const data = await apiClient.get<any>('/settings');
+        if (data.restaurant) setRestaurantData(data.restaurant);
+        if (data.notifications) setNotificationsSettings(data.notifications);
       } catch (error) {
         console.error('Erreur lors du chargement des paramètres:', error);
       }
@@ -65,17 +63,8 @@ export default function ParametresPage() {
   const handleSaveRestaurant = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch('/api/settings/restaurant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(restaurantData),
-      });
-
-      if (res.ok) {
-        setMessage('✅ Paramètres du restaurant sauvegardés');
-      } else {
-        setMessage('❌ Erreur lors de la sauvegarde');
-      }
+      await apiClient.post('/settings/restaurant', restaurantData);
+      setMessage('✅ Paramètres du restaurant sauvegardés');
     } catch (error) {
       setMessage('❌ Erreur lors de la sauvegarde');
     } finally {
@@ -93,27 +82,18 @@ export default function ParametresPage() {
 
     setIsSaving(true);
     try {
-      const res = await fetch('/api/settings/account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: accountData.email,
-          password: accountData.newPassword,
-          currentPassword: accountData.currentPassword,
-        }),
+      await apiClient.post('/settings/account', {
+        email: accountData.email,
+        password: accountData.newPassword,
+        currentPassword: accountData.currentPassword,
       });
-
-      if (res.ok) {
-        setMessage('✅ Compte administrateur mis à jour');
-        setAccountData({
-          email: '',
-          newPassword: '',
-          confirmPassword: '',
-          currentPassword: '',
-        });
-      } else {
-        setMessage('❌ Erreur lors de la mise à jour');
-      }
+      setMessage('✅ Compte administrateur mis à jour');
+      setAccountData({
+        email: '',
+        newPassword: '',
+        confirmPassword: '',
+        currentPassword: '',
+      });
     } catch (error) {
       setMessage('❌ Erreur lors de la mise à jour');
     } finally {
@@ -125,17 +105,8 @@ export default function ParametresPage() {
   const handleSaveNotifications = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch('/api/settings/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(notificationsSettings),
-      });
-
-      if (res.ok) {
-        setMessage('✅ Paramètres de notifications sauvegardés');
-      } else {
-        setMessage('❌ Erreur lors de la sauvegarde');
-      }
+      await apiClient.post('/settings/notifications', notificationsSettings);
+      setMessage('✅ Paramètres de notifications sauvegardés');
     } catch (error) {
       setMessage('❌ Erreur lors de la sauvegarde');
     } finally {

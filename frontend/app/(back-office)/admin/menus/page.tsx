@@ -5,6 +5,7 @@ import { FormInput } from '@/components/FormInput';
 import { FormSelect } from '@/components/FormSelect';
 import { FormTextarea } from '@/components/FormTextarea';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import { Plus, ToggleLeft, X } from 'lucide-react';
 
@@ -44,11 +45,8 @@ export default function MenusPage() {
 
   const fetchMenus = async () => {
     try {
-      const response = await fetch('/api/menus');
-      if (response.ok) {
-        const data = await response.json();
-        setMenus(data);
-      }
+      const data = await apiClient.get<Menu[]>('/menus');
+      setMenus(data);
     } catch (error) {
       console.error('Failed to fetch menus:', error);
     } finally {
@@ -58,19 +56,12 @@ export default function MenusPage() {
 
   const handleToggleActive = async (menu: Menu) => {
     try {
-      const response = await fetch(`/api/menus/${menu.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active: !menu.active }),
-      });
-
-      if (response.ok) {
-        setMenus(
-          menus.map((m) =>
-            m.id === menu.id ? { ...m, active: !m.active } : m
-          )
-        );
-      }
+      await apiClient.put(`/menus/${menu.id}`, { active: !menu.active });
+      setMenus(
+        menus.map((m) =>
+          m.id === menu.id ? { ...m, active: !m.active } : m
+        )
+      );
     } catch (error) {
       console.error('Failed to toggle menu:', error);
     }
@@ -79,21 +70,13 @@ export default function MenusPage() {
   const handleAddMenu = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/menus', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          price: parseFloat(formData.price),
-        }),
+      const newMenu = await apiClient.post<Menu>('/menus', {
+        ...formData,
+        price: parseFloat(formData.price),
       });
-
-      if (response.ok) {
-        const newMenu = await response.json();
-        setMenus([...menus, newMenu]);
-        setShowModal(false);
-        setFormData({ name: '', description: '', category: 'Plat Principal', price: '' });
-      }
+      setMenus([...menus, newMenu]);
+      setShowModal(false);
+      setFormData({ name: '', description: '', category: 'Plat Principal', price: '' });
     } catch (error) {
       console.error('Failed to add menu:', error);
     }

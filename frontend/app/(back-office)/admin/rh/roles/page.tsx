@@ -3,6 +3,7 @@
 import { Header } from '@/components/Header';
 import { FormInput } from '@/components/FormInput';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
@@ -34,11 +35,8 @@ export default function RolesPage() {
 
   const fetchRoles = async () => {
     try {
-      const response = await fetch('/api/roles');
-      if (response.ok) {
-        const data = await response.json();
-        setRoles(data);
-      }
+      const data = await apiClient.get<Role[]>('/roles');
+      setRoles(data);
     } catch (error) {
       console.error('Failed to fetch roles:', error);
     } finally {
@@ -48,11 +46,8 @@ export default function RolesPage() {
 
   const fetchPermissions = async () => {
     try {
-      const response = await fetch('/api/permissions');
-      if (response.ok) {
-        const data = await response.json();
-        setPermissions(data);
-      }
+      const data = await apiClient.get<Permission[]>('/permissions');
+      setPermissions(data);
     } catch (error) {
       console.error('Failed to fetch permissions:', error);
     }
@@ -65,22 +60,14 @@ export default function RolesPage() {
     }
 
     try {
-      const response = await fetch('/api/roles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          libelle: roleName,
-          permissionIds: selectedPermissions,
-        }),
+      const newRole = await apiClient.post<Role>('/roles', {
+        libelle: roleName,
+        permissionIds: selectedPermissions,
       });
-
-      if (response.ok) {
-        const newRole = await response.json();
-        setRoles([...roles, newRole]);
-        setShowModal(false);
-        setRoleName('');
-        setSelectedPermissions([]);
-      }
+      setRoles([...roles, newRole]);
+      setShowModal(false);
+      setRoleName('');
+      setSelectedPermissions([]);
     } catch (error) {
       console.error('Failed to create role:', error);
     }
@@ -92,13 +79,8 @@ export default function RolesPage() {
     }
 
     try {
-      const response = await fetch(`/api/roles/${roleId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setRoles(roles.filter((r) => r.id !== roleId));
-      }
+      await apiClient.delete(`/roles/${roleId}`);
+      setRoles(roles.filter((r) => r.id !== roleId));
     } catch (error) {
       console.error('Failed to delete role:', error);
     }

@@ -1,26 +1,26 @@
 /**
- * Contrôleur de menus
+ * Contrôleur de menus (STUB)
  */
 
 import { Request, Response } from 'express';
 import { successResponse } from '../utils/response';
 
 export async function listMenus(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - listMenus' }));
+  res.json(successResponse([]));
 }
 
 export async function getMenu(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - getMenu' }));
+  res.json(successResponse({}));
 }
 
 export async function createMenu(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - createMenu' }));
+  res.json(successResponse({ id: 'new' }));
 }
 
 export async function updateMenu(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - updateMenu' }));
+  res.json(successResponse({}));
 }
 
 export async function deleteMenu(_req: Request, res: Response) {
-  res.json(successResponse({ message: 'À implémenter - deleteMenu' }));
+  res.json(successResponse({ message: 'Supprimé' }));
 }

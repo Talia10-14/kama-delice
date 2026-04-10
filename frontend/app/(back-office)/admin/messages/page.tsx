@@ -2,6 +2,7 @@
 
 import { Header } from '@/components/Header';
 import { usePermission } from '@/hooks/usePermission';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import { Trash2, Eye, EyeOff } from 'lucide-react';
 
@@ -28,11 +29,8 @@ export default function MessagesPage() {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch('/api/messages');
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data);
-      }
+      const data = await apiClient.get<Message[]>('/messages');
+      setMessages(data);
     } catch (error) {
       console.error('Failed to fetch messages:', error);
     } finally {
@@ -42,19 +40,12 @@ export default function MessagesPage() {
 
   const handleMarkAsRead = async (message: Message) => {
     try {
-      const response = await fetch(`/api/messages/${message.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ read: !message.read }),
-      });
-
-      if (response.ok) {
-        setMessages(
-          messages.map((msg) =>
-            msg.id === message.id ? { ...msg, read: !msg.read } : msg
-          )
-        );
-      }
+      await apiClient.put(`/messages/${message.id}`, { read: !message.read });
+      setMessages(
+        messages.map((msg) =>
+          msg.id === message.id ? { ...msg, read: !msg.read } : msg
+        )
+      );
     } catch (error) {
       console.error('Failed to update message:', error);
     }
@@ -66,14 +57,9 @@ export default function MessagesPage() {
     }
 
     try {
-      const response = await fetch(`/api/messages/${messageId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setMessages(messages.filter((msg) => msg.id !== messageId));
-        setSelectedMessage(null);
-      }
+      await apiClient.delete(`/messages/${messageId}`);
+      setMessages(messages.filter((msg) => msg.id !== messageId));
+      setSelectedMessage(null);
     } catch (error) {
       console.error('Failed to delete message:', error);
     }

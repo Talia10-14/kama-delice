@@ -3,6 +3,7 @@
 import { Header } from '@/components/Header';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { apiClient } from '@/lib/api-client';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Lock, Plus, Trash2, RotateCcw } from 'lucide-react';
 import {
@@ -102,15 +103,8 @@ export default function EmployeePermissionsPage() {
   const fetchEmployee = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/employees/${employeeId}`, {
-        headers: {
-          Authorization: `Bearer ${(session as any)?.accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setEmployee(data.data || data);
-      }
+      const data = await apiClient.get<any>(`/employees/${employeeId}`);
+      setEmployee(data.data || data);
     } catch (error) {
       console.error('Erreur:', error);
       toast({

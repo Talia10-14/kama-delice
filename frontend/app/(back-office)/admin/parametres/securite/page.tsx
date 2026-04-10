@@ -43,20 +43,12 @@ export default function SecurityPage() {
   const fetchSecurityAudit = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/security-audit", {
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Impossível de charger l'audit de sécurité");
-      }
-
-      const data = await response.json();
+      const data = await apiClient.get<any>('/admin/security-audit');
       setAudit(data.data);
       setError(null);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Erreur lors de la récupération";
+        err instanceof Error ? err.message : 'Erreur lors de la récupération';
       setError(message);
     } finally {
       setLoading(false);
