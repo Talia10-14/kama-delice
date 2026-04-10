@@ -10,6 +10,7 @@ async function loginWithBackend(
 ): Promise<{ success: boolean; accessToken?: string; refreshToken?: string; user?: any; message?: string }> {
   try {
     const backendUrl = process.env.API_URL || "http://localhost:4000/api";
+    console.log("🔍 API_URL utilisée:", backendUrl);
     const response = await fetch(`${backendUrl}/auth/login`, {
       method: "POST",
       headers: {
