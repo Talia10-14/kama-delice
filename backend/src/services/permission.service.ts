@@ -50,7 +50,7 @@ export async function getEffectivePermissions(employeeId: string): Promise<strin
     // Admin a toutes les permissions
     if (user.role?.name === 'admin') {
       const allPermissions = await prisma.permission.findMany();
-      const allCodes = allPermissions.map((p) => p.codeName);
+      const allCodes = allPermissions.map((p: any) => p.codeName);
       
       // Mettre en cache
       permissionsCache.set(employeeId, {
@@ -63,7 +63,7 @@ export async function getEffectivePermissions(employeeId: string): Promise<strin
 
     // 2. Récupérer les permissions du rôle
     const rolePermissions = new Set(
-      user.role?.permissions.map((p) => p.codeName) || []
+      user.role?.permissions.map((p: any) => p.codeName) || []
     );
 
     // 3. Récupérer les modifications individuelles (GRANT/REVOKE)
@@ -82,7 +82,7 @@ export async function getEffectivePermissions(employeeId: string): Promise<strin
     }
 
     // 5. Retourner la liste finale sans doublons
-    const effectivePermissions = Array.from(rolePermissions);
+    const effectivePermissions: string[] = Array.from(rolePermissions);
 
     // Mettre en cache
     permissionsCache.set(employeeId, {
