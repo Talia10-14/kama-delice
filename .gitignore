@@ -55,3 +55,4 @@ prisma/dev.db-journal
 
 # Docker
 .dockerignore
+frontend/.env.local
